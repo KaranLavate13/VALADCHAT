@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VALADCHAT</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background: radial-gradient(circle at top left, #111827, #05070c 60%, #090d16);
+      color: #f3f4f6;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    .glass {
+      background: rgba(255, 255, 255, 0.04);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.09);
+    }
+    .glass-strong {
+      background: rgba(15, 23, 42, 0.72);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 9999px; }
+  </style>
+</head>
+<body class="h-screen w-screen overflow-hidden flex items-center justify-center">
+
+  <!-- LOGIN SCREEN -->
+  <div id="login-screen" class="glass-strong p-10 rounded-3xl max-w-md w-full mx-4 text-center shadow-2xl">
+    <div class="w-16 h-16 mx-auto mb-5 rounded-2xl bg-gradient-to-tr from-sky-500 to-indigo-500 flex items-center justify-center shadow-lg shadow-sky-500/20">
+      <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+      </svg>
+    </div>
+    <h1 class="text-2xl font-bold tracking-wide text-white mb-2">VALADCHAT</h1>
+    <p class="text-sm text-gray-400 mb-8">Sign in with your Gmail account to access direct messages & groups.</p>
+    <button id="btn-login" class="w-full py-3.5 px-5 rounded-xl bg-white text-gray-900 font-semibold text-sm flex items-center justify-center gap-3 hover:bg-gray-100 transition shadow-lg">
+      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5" alt="Google" />
+      Choose Gmail Account
+    </button>
+    <p id="login-error" class="text-xs text-red-400 mt-4 hidden"></p>
+  </div>
+
+  <!-- MAIN APP -->
+  <div id="app-screen" class="hidden w-full h-full max-w-7xl mx-auto p-2 sm:p-4 flex gap-3">
+    
+    <!-- SIDEBAR -->
+    <aside id="sidebar" class="glass-strong rounded-3xl w-full md:w-80 flex-shrink-0 flex flex-col overflow-hidden">
+      <!-- User Header -->
+      <div class="p-4 border-b border-white/10 flex items-center justify-between">
+        <div class="flex items-center gap-3 min-w-0">
+          <img id="user-avatar" src="" class="w-10 h-10 rounded-full border border-white/20 object-cover" alt="" />
+          <div class="min-w-0">
+            <p id="user-name" class="text-sm font-semibold text-white truncate"></p>
+            <p id="user-email" class="text-xs text-gray-400 truncate"></p>
+          </div>
+        </div>
+        <button id="btn-logout" title="Switch Account / Logout" class="p-2 rounded-xl hover:bg-white/10 text-gray-400 hover:text-white transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="p-3 grid grid-cols-2 gap-2 border-b border-white/10">
+        <button id="btn-new-dm" class="glass hover:bg-white/10 text-xs font-medium py-2.5 px-3 rounded-xl text-sky-300 transition flex items-center justify-center gap-1.5">
+          <span>+ Direct Chat</span>
+        </button>
+        <button id="btn-new-group" class="glass hover:bg-white/10 text-xs font-medium py-2.5 px-3 rounded-xl text-indigo-300 transition flex items-center justify-center gap-1.5">
+          <span>+ New Group</span>
+        </button>
+      </div>
+
+      <!-- Chat List -->
+      <div id="chat-list" class="flex-1 overflow-y-auto p-2 space-y-1">
+        <p class="text-xs text-gray-500 text-center mt-10">No chats yet. Start a DM or create a group.</p>
+      </div>
+    </aside>
+
+    <!-- CHAT AREA -->
+    <main id="chat-pane" class="glass-strong rounded-3xl flex-1 hidden md:flex flex-col overflow-hidden relative">
+      
+      <!-- Empty State -->
+      <div id="empty-chat" class="flex-1 flex flex-col items-center justify-center text-center p-6">
+        <div class="w-14 h-14 rounded-2xl glass flex items-center justify-center mb-4 text-gray-400">
+          <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/>
+          </svg>
+        </div>
+        <h2 class="text-base font-semibold text-white">Select a chat or start a new one</h2>
+        <p class="text-xs text-gray-400 mt-1 max-w-xs">Paste screenshots directly with Ctrl+V or upload images. Other file types are disabled.</p>
+      </div>
+
+      <!-- Active Chat Container -->
+      <div id="active-chat" class="hidden flex-1 flex flex-col h-full">
+        <!-- Header -->
+        <div class="p-4 border-b border-white/10 flex items-center gap-3">
+          <button id="btn-back" class="md:hidden p-2 rounded-xl hover:bg-white/10 text-gray-300">
+            ←
+          </button>
+          <div class="min-w-0 flex-1">
+            <h3 id="chat-title" class="text-sm font-bold text-white truncate"></h3>
+            <p id="chat-subtitle" class="text-xs text-gray-400 truncate"></p>
+          </div>
+        </div>
+
+        <!-- Messages -->
+        <div id="messages-box" class="flex-1 overflow-y-auto p-4 space-y-3"></div>
+
+        <!-- Screenshot Preview Banner -->
+        <div id="image-preview-bar" class="hidden px-4 py-2.5 bg-white/5 border-t border-white/10 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <img id="preview-thumb" src="" class="h-14 w-auto rounded-lg border border-white/20 object-cover" />
+            <span class="text-xs text-sky-300">Screenshot ready to send</span>
+          </div>
+          <button id="btn-clear-image" class="text-xs text-red-400 hover:text-red-300 px-2 py-1 rounded-lg hover:bg-white/5">Remove</button>
+        </div>
+
+        <!-- Input Bar -->
+        <form id="message-form" class="p-3 border-t border-white/10 flex items-center gap-2">
+          <input type="file" id="image-input" accept="image/png,image/jpeg,image/webp" class="hidden" />
+          <button type="button" id="btn-attach" title="Attach Screenshot / Image Only" class="p-3 rounded-xl glass hover:bg-white/10 text-gray-300 hover:text-white transition">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
+          </button>
+          <input
+            id="message-input"
+            type="text"
+            autocomplete="off"
+            placeholder="Type a message or paste a screenshot (Ctrl+V)..."
+            class="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-sky-500/50"
+          />
+          <button type="submit" class="px-5 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-white font-semibold text-sm transition shadow-lg shadow-sky-500/20">
+            Send
+          </button>
+        </form>
+      </div>
+    </main>
+  </div>
+
+  <!-- MODAL: NEW DM -->
+  <div id="modal-dm" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="glass-strong rounded-3xl p-6 max-w-sm w-full space-y-4">
+      <h3 class="text-lg font-bold text-white">Start Direct Chat</h3>
+      <p class="text-xs text-gray-400">Enter the recipient's Gmail address.</p>
+      <input id="dm-email-input" type="email" placeholder="friend@gmail.com" class="w-full bg-white/5 border border-white/10 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-sky-500" />
+      <div class="flex justify-end gap-2 pt-2">
+        <button type="button" onclick="closeModals()" class="px-4 py-2 rounded-xl text-xs text-gray-400 hover:bg-white/10">Cancel</button>
+        <button type="button" id="btn-create-dm" class="px-4 py-2 rounded-xl text-xs font-semibold bg-sky-500 text-white hover:bg-sky-400">Start Chat</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: NEW GROUP -->
+  <div id="modal-group" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="glass-strong rounded-3xl p-6 max-w-md w-full space-y-4">
+      <h3 class="text-lg font-bold text-white">Create Group Chat</h3>
+      <input id="group-name-input" type="text" placeholder="Group Name (e.g., Team Alpha)" class="w-full bg-white/5 border border-white/10 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500" />
+      <div>
+        <label class="text-xs text-gray-400 block mb-1">Member Gmail addresses (comma-separated)</label>
+        <textarea id="group-members-input" rows="3" placeholder="user1@gmail.com, user2@gmail.com" class="w-full bg-white/5 border border-white/10 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500"></textarea>
+      </div>
+      <div class="flex justify-end gap-2 pt-2">
+        <button type="button" onclick="closeModals()" class="px-4 py-2 rounded-xl text-xs text-gray-400 hover:bg-white/10">Cancel</button>
+        <button type="button" id="btn-create-group" class="px-4 py-2 rounded-xl text-xs font-semibold bg-indigo-500 text-white hover:bg-indigo-400">Create Group</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- IMAGE LIGHTBOX -->
+  <div id="lightbox" onclick="this.classList.add('hidden')" class="hidden fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4 cursor-zoom-out">
+    <img id="lightbox-img" src="" class="max-h-[90vh] max-w-[95vw] rounded-2xl shadow-2xl" />
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+    import { getDatabase, ref, set, push, onValue, off, get } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAZ-gfYvJk9V08ahIDUMJffEkSI3tvTxmg",
+      authDomain: "my-private-project-1307.firebaseapp.com",
+      databaseURL: "https://my-private-project-1307-default-rtdb.firebaseio.com",
+      projectId: "my-private-project-1307",
+      storageBucket: "my-private-project-1307.firebasestorage.app",
+      messagingSenderId: "36501656008",
+      appId: "1:36501656008:web:4a16827bbd14d112a7b0fd",
+      measurementId: "G-KMFDD7JSY0"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: "select_account" });
+
+    let currentUser = null;
+    let activeChatId = null;
+    let activeMessagesRef = null;
+    let pendingImageBase64 = null;
+
+    const sanitizeEmail = (email) => email.trim().toLowerCase().replace(/\./g, ",");
+
+    // Auth Actions
+    document.getElementById("btn-login").onclick = async () => {
+      const errEl = document.getElementById("login-error");
+      errEl.classList.add("hidden");
+      try {
+        await signInWithPopup(auth, provider);
+      } catch (err) {
+        errEl.textContent = err.message;
+        errEl.classList.remove("hidden");
+      }
+    };
+
+    document.getElementById("btn-logout").onclick = () => signOut(auth);
+
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        currentUser = user;
+        document.getElementById("login-screen").classList.add("hidden");
+        document.getElementById("app-screen").classList.remove("hidden");
+        document.getElementById("user-name").textContent = user.displayName || user.email;
+        document.getElementById("user-email").textContent = user.email;
+        document.getElementById("user-avatar").src = user.photoURL || "https://ui-avatars.com/api/?name=" + encodeURIComponent(user.email);
+
+        // Save user profile
+        await set(ref(db, "users/" + sanitizeEmail(user.email)), {
+          email: user.email.toLowerCase(),
+          name: user.displayName || user.email.split("@")[0],
+          photo: user.photoURL || ""
+        });
+
+        listenToUserChats();
+      } else {
+        currentUser = null;
+        activeChatId = null;
+        document.getElementById("app-screen").classList.add("hidden");
+        document.getElementById("login-screen").classList.remove("hidden");
+      }
+    });
+
+    // Modals
+    window.closeModals = () => {
+      document.getElementById("modal-dm").classList.add("hidden");
+      document.getElementById("modal-group").classList.add("hidden");
+    };
+    document.getElementById("btn-new-dm").onclick = () => document.getElementById("modal-dm").classList.remove("hidden");
+    document.getElementById("btn-new-group").onclick = () => document.getElementById("modal-group").classList.remove("hidden");
+
+    // Start 1-on-1 DM
+    document.getElementById("btn-create-dm").onclick = async () => {
+      const rawEmail = document.getElementById("dm-email-input").value.trim().toLowerCase();
+      if (!rawEmail || !rawEmail.includes("@") || rawEmail === currentUser.email.toLowerCase()) {
+        return alert("Please enter a valid Gmail address other than your own.");
+      }
+      const myKey = sanitizeEmail(currentUser.email);
+      const otherKey = sanitizeEmail(rawEmail);
+      const chatId = "dm_" + [myKey, otherKey].sort().join("__");
+
+      const chatRef = ref(db, "chats/" + chatId);
+      const snap = await get(chatRef);
+      if (!snap.exists()) {
+        await set(chatRef, {
+          type: "dm",
+          members: {
+            [myKey]: currentUser.email.toLowerCase(),
+            [otherKey]: rawEmail
+          },
+          createdAt: Date.now()
+        });
+      }
+      document.getElementById("dm-email-input").value = "";
+      closeModals();
+      openChat(chatId, rawEmail, "Direct Message");
+    };
+
+    // Create Group
+    document.getElementById("btn-create-group").onclick = async () => {
+      const name = document.getElementById("group-name-input").value.trim();
+      const rawList = document.getElementById("group-members-input").value.split(",").map(e => e.trim().toLowerCase()).filter(e => e.includes("@"));
+      if (!name) return alert("Enter a group name.");
+      if (rawList.length === 0) return alert("Enter at least one member Gmail address.");
+
+      const membersObj = { [sanitizeEmail(currentUser.email)]: currentUser.email.toLowerCase() };
+      rawList.forEach(email => { membersObj[sanitizeEmail(email)] = email; });
+
+      const newGroupRef = push(ref(db, "chats"));
+      await set(newGroupRef, {
+        type: "group",
+        name,
+        members: membersObj,
+        createdAt: Date.now()
+      });
+
+      document.getElementById("group-name-input").value = "";
+      document.getElementById("group-members-input").value = "";
+      closeModals();
+      openChat(newGroupRef.key, name, Object.values(membersObj).join(", "));
+    };
+
+    // Listen to Chats
+    function listenToUserChats() {
+      const myKey = sanitizeEmail(currentUser.email);
+      onValue(ref(db, "chats"), (snapshot) => {
+        const listEl = document.getElementById("chat-list");
+        listEl.innerHTML = "";
+        const data = snapshot.val() || {};
+        const myChats = Object.entries(data).filter(([_, chat]) => chat.members && chat.members[myKey]);
+
+        if (myChats.length === 0) {
+          listEl.innerHTML = `<p class="text-xs text-gray-500 text-center mt-10">No chats yet. Start a DM or create a group.</p>`;
+          return;
+        }
+
+        myChats.forEach(([id, chat]) => {
+          const memberEmails = Object.values(chat.members);
+          const title = chat.type === "group"
+            ? chat.name
+            : memberEmails.find(e => e !== currentUser.email.toLowerCase()) || currentUser.email;
+          const subtitle = chat.type === "group" ? `${memberEmails.length} members` : "Direct Message";
+
+          const btn = document.createElement("button");
+          btn.className = `w-full text-left p-3 rounded-2xl transition flex items-center gap-3 ${activeChatId === id ? "bg-white/15 border border-white/15" : "hover:bg-white/5"}`;
+          btn.innerHTML = `
+            <div class="w-10 h-10 rounded-xl ${chat.type === "group" ? "bg-indigo-500/20 text-indigo-300" : "bg-sky-500/20 text-sky-300"} flex items-center justify-center font-bold text-sm flex-shrink-0">
+              ${title.charAt(0).toUpperCase()}
+            </div>
+            <div class="min-w-0 flex-1">
+              <p class="text-sm font-semibold text-white truncate">${escapeHtml(title)}</p>
+              <p class="text-xs text-gray-400 truncate">${escapeHtml(subtitle)}</p>
+            </div>
+          `;
+          btn.onclick = () => openChat(id, title, chat.type === "group" ? memberEmails.join(", ") : "Direct Message");
+          listEl.appendChild(btn);
+        });
+      });
+    }
+
+    // Open Chat Room
+    function openChat(chatId, title, subtitle) {
+      activeChatId = chatId;
+      document.getElementById("sidebar").classList.add("hidden", "md:flex");
+      document.getElementById("chat-pane").classList.remove("hidden");
+      document.getElementById("chat-pane").classList.add("flex");
+      document.getElementById("empty-chat").classList.add("hidden");
+      document.getElementById("active-chat").classList.remove("hidden");
+
+      document.getElementById("chat-title").textContent = title;
+      document.getElementById("chat-subtitle").textContent = subtitle;
+
+      if (activeMessagesRef) off(activeMessagesRef);
+      activeMessagesRef = ref(db, "messages/" + chatId);
+
+      onValue(activeMessagesRef, (snapshot) => {
+        const box = document.getElementById("messages-box");
+        box.innerHTML = "";
+        const msgs = snapshot.val() || {};
+        Object.values(msgs).forEach((m) => {
+          const isMe = m.senderEmail === currentUser.email.toLowerCase();
+          const wrap = document.createElement("div");
+          wrap.className = `flex flex-col ${isMe ? "items-end" : "items-start"}`;
+
+          const timeStr = new Date(m.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+          wrap.innerHTML = `
+            <span class="text-[10px] text-gray-400 mb-1 px-1">${isMe ? "You" : escapeHtml(m.senderName || m.senderEmail)} • ${timeStr}</span>
+            <div class="max-w-[80%] sm:max-w-md rounded-2xl px-3.5 py-2.5 text-sm shadow ${isMe ? "bg-sky-600/80 text-white rounded-br-sm" : "glass text-gray-100 rounded-bl-sm"}">
+              ${m.image ? `<img src="${m.image}" onclick="openLightbox('${m.image}')" class="rounded-xl max-h-72 w-auto mb-1.5 cursor-zoom-in border border-white/10" />` : ""}
+              ${m.text ? `<p class="whitespace-pre-wrap break-words">${escapeHtml(m.text)}</p>` : ""}
+            </div>
+          `;
+          box.appendChild(wrap);
+        });
+        box.scrollTop = box.scrollHeight;
+      });
+    }
+
+    document.getElementById("btn-back").onclick = () => {
+      document.getElementById("chat-pane").classList.add("hidden");
+      document.getElementById("sidebar").classList.remove("hidden");
+    };
+
+    window.openLightbox = (src) => {
+      document.getElementById("lightbox-img").src = src;
+      document.getElementById("lightbox").classList.remove("hidden");
+    };
+
+    // Strict Screenshot / Image Handling (Paste + Picker Only)
+    const ALLOWED_TYPES = ["image/png", "image/jpeg", "image/webp"];
+
+    function processImageFile(file) {
+      if (!file || !ALLOWED_TYPES.includes(file.type)) {
+        alert("Only PNG, JPEG, or WEBP images/screenshots are allowed. Other files are blocked.");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          const MAX_W = 850;
+          const scale = img.width > MAX_W ? MAX_W / img.width : 1;
+          canvas.width = img.width * scale;
+          canvas.height = img.height * scale;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          pendingImageBase64 = canvas.toDataURL("image/jpeg", 0.72);
+          document.getElementById("preview-thumb").src = pendingImageBase64;
+          document.getElementById("image-preview-bar").classList.remove("hidden");
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Paste Screenshot (Ctrl+V)
+    document.addEventListener("paste", (e) => {
+      if (!activeChatId) return;
+      const items = e.clipboardData?.items || [];
+      for (const item of items) {
+        if (item.kind === "file") {
+          e.preventDefault();
+          processImageFile(item.getAsFile());
+          return;
+        }
+      }
+    });
+
+    // Attach Button (Image Only)
+    document.getElementById("btn-attach").onclick = () => document.getElementById("image-input").click();
+    document.getElementById("image-input").onchange = (e) => {
+      if (e.target.files[0]) processImageFile(e.target.files[0]);
+      e.target.value = "";
+    };
+
+    // Block Drag & Drop of non-images
+    document.addEventListener("dragover", (e) => e.preventDefault());
+    document.addEventListener("drop", (e) => {
+      e.preventDefault();
+      if (!activeChatId) return;
+      if (e.dataTransfer.files[0]) processImageFile(e.dataTransfer.files[0]);
+    });
+
+    document.getElementById("btn-clear-image").onclick = clearPendingImage;
+    function clearPendingImage() {
+      pendingImageBase64 = null;
+      document.getElementById("image-preview-bar").classList.add("hidden");
+      document.getElementById("preview-thumb").src = "";
+    }
+
+    // Send Message
+    document.getElementById("message-form").onsubmit = async (e) => {
+      e.preventDefault();
+      if (!activeChatId || !currentUser) return;
+      const input = document.getElementById("message-input");
+      const text = input.value.trim();
+      if (!text && !pendingImageBase64) return;
+
+      const msgData = {
+        senderEmail: currentUser.email.toLowerCase(),
+        senderName: currentUser.displayName || currentUser.email.split("@")[0],
+        text,
+        image: pendingImageBase64 || null,
+        timestamp: Date.now()
+      };
+
+      input.value = "";
+      clearPendingImage();
+      await push(ref(db, "messages/" + activeChatId), msgData);
+    };
+
+    function escapeHtml(str) {
+      return String(str).replace(/[&<>"']/g, (m) => ({ "&": "&", "<": "<", ">": ">", '"': """, "'": "'" }[m]));
+    }
+  </script>
+</body>
+</html>
