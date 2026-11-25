@@ -39,11 +39,12 @@
     </div>
     <h1 class="text-2xl font-bold tracking-wide text-white mb-2">VALADCHAT</h1>
     <p class="text-sm text-gray-400 mb-8">Sign in with your Gmail account to access direct messages & groups.</p>
-    <button id="btn-login" class="w-full py-3.5 px-5 rounded-xl bg-white text-gray-900 font-semibold text-sm flex items-center justify-center gap-3 hover:bg-gray-100 transition shadow-lg">
+    <button id="btn-login" type="button" class="w-full py-3.5 px-5 rounded-xl bg-white text-gray-900 font-semibold text-sm flex items-center justify-center gap-3 hover:bg-gray-100 active:scale-[0.99] transition shadow-lg cursor-pointer">
       <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5" alt="Google" />
-      Choose Gmail Account
+      <span id="btn-login-text">Choose Gmail Account</span>
     </button>
-    <p id="login-error" class="text-xs text-red-400 mt-4 hidden"></p>
+    <p id="login-status" class="text-xs text-sky-400 mt-4 hidden"></p>
+    <p id="login-error" class="text-xs text-red-400 mt-4 hidden break-words"></p>
   </div>
 
   <!-- MAIN APP -->
@@ -51,7 +52,6 @@
     
     <!-- SIDEBAR -->
     <aside id="sidebar" class="glass-strong rounded-3xl w-full md:w-80 flex-shrink-0 flex flex-col overflow-hidden">
-      <!-- User Header -->
       <div class="p-4 border-b border-white/10 flex items-center justify-between">
         <div class="flex items-center gap-3 min-w-0">
           <img id="user-avatar" src="" class="w-10 h-10 rounded-full border border-white/20 object-cover" alt="" />
@@ -67,7 +67,6 @@
         </button>
       </div>
 
-      <!-- Action Buttons -->
       <div class="p-3 grid grid-cols-2 gap-2 border-b border-white/10">
         <button id="btn-new-dm" class="glass hover:bg-white/10 text-xs font-medium py-2.5 px-3 rounded-xl text-sky-300 transition flex items-center justify-center gap-1.5">
           <span>+ Direct Chat</span>
@@ -77,7 +76,6 @@
         </button>
       </div>
 
-      <!-- Chat List -->
       <div id="chat-list" class="flex-1 overflow-y-auto p-2 space-y-1">
         <p class="text-xs text-gray-500 text-center mt-10">No chats yet. Start a DM or create a group.</p>
       </div>
@@ -85,8 +83,6 @@
 
     <!-- CHAT AREA -->
     <main id="chat-pane" class="glass-strong rounded-3xl flex-1 hidden md:flex flex-col overflow-hidden relative">
-      
-      <!-- Empty State -->
       <div id="empty-chat" class="flex-1 flex flex-col items-center justify-center text-center p-6">
         <div class="w-14 h-14 rounded-2xl glass flex items-center justify-center mb-4 text-gray-400">
           <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
@@ -97,23 +93,17 @@
         <p class="text-xs text-gray-400 mt-1 max-w-xs">Paste screenshots directly with Ctrl+V or upload images. Other file types are disabled.</p>
       </div>
 
-      <!-- Active Chat Container -->
       <div id="active-chat" class="hidden flex-1 flex flex-col h-full">
-        <!-- Header -->
         <div class="p-4 border-b border-white/10 flex items-center gap-3">
-          <button id="btn-back" class="md:hidden p-2 rounded-xl hover:bg-white/10 text-gray-300">
-            ←
-          </button>
+          <button id="btn-back" class="md:hidden p-2 rounded-xl hover:bg-white/10 text-gray-300">←</button>
           <div class="min-w-0 flex-1">
             <h3 id="chat-title" class="text-sm font-bold text-white truncate"></h3>
             <p id="chat-subtitle" class="text-xs text-gray-400 truncate"></p>
           </div>
         </div>
 
-        <!-- Messages -->
         <div id="messages-box" class="flex-1 overflow-y-auto p-4 space-y-3"></div>
 
-        <!-- Screenshot Preview Banner -->
         <div id="image-preview-bar" class="hidden px-4 py-2.5 bg-white/5 border-t border-white/10 flex items-center justify-between">
           <div class="flex items-center gap-3">
             <img id="preview-thumb" src="" class="h-14 w-auto rounded-lg border border-white/20 object-cover" />
@@ -122,7 +112,6 @@
           <button id="btn-clear-image" class="text-xs text-red-400 hover:text-red-300 px-2 py-1 rounded-lg hover:bg-white/5">Remove</button>
         </div>
 
-        <!-- Input Bar -->
         <form id="message-form" class="p-3 border-t border-white/10 flex items-center gap-2">
           <input type="file" id="image-input" accept="image/png,image/jpeg,image/webp" class="hidden" />
           <button type="button" id="btn-attach" title="Attach Screenshot / Image Only" class="p-3 rounded-xl glass hover:bg-white/10 text-gray-300 hover:text-white transition">
@@ -181,7 +170,15 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-    import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+    import {
+      getAuth,
+      GoogleAuthProvider,
+      signInWithPopup,
+      signInWithRedirect,
+      getRedirectResult,
+      signOut,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
     import { getDatabase, ref, set, push, onValue, off, get } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
 
     const firebaseConfig = {
@@ -207,16 +204,35 @@
     let pendingImageBase64 = null;
 
     const sanitizeEmail = (email) => email.trim().toLowerCase().replace(/\./g, ",");
+    const errEl = document.getElementById("login-error");
+    const statusEl = document.getElementById("login-status");
 
-    // Auth Actions
+    function showError(msg) {
+      statusEl.classList.add("hidden");
+      errEl.textContent = msg;
+      errEl.classList.remove("hidden");
+    }
+
+    // Handle redirect return if redirect login was used
+    getRedirectResult(auth).catch((err) => {
+      if (err?.code) showError(`Login error (${err.code}): ${err.message}`);
+    });
+
+    // Auth Actions (Popup first, auto-fallback to Redirect if blocked)
     document.getElementById("btn-login").onclick = async () => {
-      const errEl = document.getElementById("login-error");
       errEl.classList.add("hidden");
+      statusEl.textContent = "Opening Google account selector...";
+      statusEl.classList.remove("hidden");
+
       try {
         await signInWithPopup(auth, provider);
       } catch (err) {
-        errEl.textContent = err.message;
-        errEl.classList.remove("hidden");
+        if (err.code === "auth/popup-blocked" || err.code === "auth/cancelled-popup-request") {
+          statusEl.textContent = "Popup blocked—redirecting to Google sign-in...";
+          await signInWithRedirect(auth, provider);
+        } else {
+          showError(`Sign-in failed (${err.code || "error"}): ${err.message}`);
+        }
       }
     };
 
@@ -225,18 +241,22 @@
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         currentUser = user;
+        statusEl.classList.add("hidden");
         document.getElementById("login-screen").classList.add("hidden");
         document.getElementById("app-screen").classList.remove("hidden");
         document.getElementById("user-name").textContent = user.displayName || user.email;
         document.getElementById("user-email").textContent = user.email;
         document.getElementById("user-avatar").src = user.photoURL || "https://ui-avatars.com/api/?name=" + encodeURIComponent(user.email);
 
-        // Save user profile
-        await set(ref(db, "users/" + sanitizeEmail(user.email)), {
-          email: user.email.toLowerCase(),
-          name: user.displayName || user.email.split("@")[0],
-          photo: user.photoURL || ""
-        });
+        try {
+          await set(ref(db, "users/" + sanitizeEmail(user.email)), {
+            email: user.email.toLowerCase(),
+            name: user.displayName || user.email.split("@")[0],
+            photo: user.photoURL || ""
+          });
+        } catch (dbErr) {
+          console.error("DB write error:", dbErr);
+        }
 
         listenToUserChats();
       } else {
@@ -392,7 +412,7 @@
       document.getElementById("lightbox").classList.remove("hidden");
     };
 
-    // Strict Screenshot / Image Handling (Paste + Picker Only)
+    // Strict Screenshot / Image Handling
     const ALLOWED_TYPES = ["image/png", "image/jpeg", "image/webp"];
 
     function processImageFile(file) {
@@ -420,7 +440,6 @@
       reader.readAsDataURL(file);
     }
 
-    // Paste Screenshot (Ctrl+V)
     document.addEventListener("paste", (e) => {
       if (!activeChatId) return;
       const items = e.clipboardData?.items || [];
@@ -433,14 +452,12 @@
       }
     });
 
-    // Attach Button (Image Only)
     document.getElementById("btn-attach").onclick = () => document.getElementById("image-input").click();
     document.getElementById("image-input").onchange = (e) => {
       if (e.target.files[0]) processImageFile(e.target.files[0]);
       e.target.value = "";
     };
 
-    // Block Drag & Drop of non-images
     document.addEventListener("dragover", (e) => e.preventDefault());
     document.addEventListener("drop", (e) => {
       e.preventDefault();
@@ -455,7 +472,6 @@
       document.getElementById("preview-thumb").src = "";
     }
 
-    // Send Message
     document.getElementById("message-form").onsubmit = async (e) => {
       e.preventDefault();
       if (!activeChatId || !currentUser) return;
