@@ -116,14 +116,14 @@
       </svg>
     </div>
     <h1 class="text-2xl font-semibold tracking-tight text-theme-primary mb-1.5">VALADCHAT</h1>
-    <p class="text-xs text-theme-secondary mb-6">Create your permanent display name once to enter chats and groups.</p>
+    <p class="text-xs text-theme-secondary mb-6">Create your display name once—it stays saved forever unless you change it.</p>
     <form id="guest-entry-form" class="space-y-3 text-left">
       <input
         id="guest-name-input"
         type="text"
         required
         maxlength="32"
-        placeholder="Choose your permanent display name..."
+        placeholder="Choose your display name..."
         class="w-full imessage-glass rounded-2xl px-4 py-3.5 text-sm text-theme-primary placeholder-gray-400 focus:outline-none focus:border-sky-400/60"
       />
       <button id="btn-login" type="submit" class="w-full py-3.5 px-5 rounded-2xl imessage-send-btn text-white font-semibold text-sm flex items-center justify-center gap-2 transition cursor-pointer shadow-lg">
@@ -144,12 +144,15 @@
         <div class="flex items-center gap-2.5 min-w-0">
           <div id="user-avatar" class="w-9 h-9 rounded-full imessage-bubble-sent flex items-center justify-center text-white font-semibold text-sm flex-shrink-0">U</div>
           <div class="min-w-0">
-            <p id="user-name" class="text-sm font-semibold text-theme-primary truncate"></p>
-            <p id="user-handle" class="text-[11px] text-theme-secondary truncate">Saved Profile</p>
+            <div class="flex items-center gap-1.5">
+              <p id="user-name" class="text-sm font-semibold text-theme-primary truncate"></p>
+              <button id="btn-edit-name" type="button" title="Change Display Name" class="text-[11px] text-sky-400 hover:underline flex-shrink-0">Edit</button>
+            </div>
+            <p id="user-handle" class="text-[11px] text-theme-secondary truncate">Saved Forever</p>
           </div>
         </div>
         <div class="flex items-center gap-1">
-          <button id="btn-copy-app-link" type="button" title="Copy Main App Link" class="p-2 rounded-xl imessage-glass hover:bg-white/10 text-sky-400 transition text-xs">
+          <button id="btn-copy-app-link" type="button" title="Copy Website Link" class="p-2 rounded-xl imessage-glass hover:bg-white/10 text-sky-400 transition text-xs">
             🔗
           </button>
           <button id="btn-theme-toggle" type="button" title="Toggle Dark / Light Mode" class="p-2 rounded-xl imessage-glass hover:bg-white/10 text-theme-primary transition text-xs">
@@ -190,7 +193,7 @@
       <div id="empty-chat" class="flex-1 flex flex-col items-center justify-center text-center p-6">
         <div class="w-12 h-12 rounded-2xl imessage-glass flex items-center justify-center mb-3 text-sky-400 text-lg font-semibold">iM</div>
         <h2 class="text-base font-semibold text-theme-primary">Messages</h2>
-        <p class="text-xs text-theme-secondary mt-1 max-w-xs">Start a direct chat or group, share the main link with anyone, and paste screenshots with Ctrl+V.</p>
+        <p class="text-xs text-theme-secondary mt-1 max-w-xs">Create a direct chat or group, share the website link, and paste screenshots with Ctrl+V.</p>
       </div>
 
       <div id="favorites-vault" class="hidden flex-1 flex flex-col h-full">
@@ -224,8 +227,11 @@
               <span>✨</span>
               <span>AI</span>
             </button>
-            <button id="btn-leave-group" type="button" title="Leave this group" class="hidden px-2.5 py-1.5 rounded-xl imessage-glass hover:bg-rose-500/20 text-xs font-medium text-rose-400 transition">
+            <button id="btn-leave-group" type="button" title="Leave this group" class="hidden px-2.5 py-1.5 rounded-xl imessage-glass hover:bg-amber-500/20 text-xs font-medium text-amber-300 transition">
               Leave Group
+            </button>
+            <button id="btn-delete-chat" type="button" title="Delete this chat" class="px-2.5 py-1.5 rounded-xl imessage-glass hover:bg-rose-500/20 text-xs font-medium text-rose-400 transition">
+              Delete
             </button>
 
             <div id="ai-drawer" class="hidden fixed top-20 right-4 sm:right-8 z-50 w-80 sm:w-96 imessage-panel rounded-3xl p-4 space-y-3">
@@ -285,8 +291,8 @@
   <div id="modal-dm" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" style="backdrop-filter: blur(5%);">
     <div class="imessage-panel rounded-[24px] p-6 max-w-sm w-full space-y-4">
       <h3 class="text-base font-semibold text-theme-primary">New Direct Chat</h3>
-      <p class="text-xs text-theme-secondary">Start a direct chat room and share the main app link so they can join.</p>
-      <input id="dm-name-input" type="text" placeholder="Chat title or person's name..." class="w-full imessage-glass rounded-xl px-3.5 py-2.5 text-sm text-theme-primary placeholder-gray-400 focus:outline-none" />
+      <p class="text-xs text-theme-secondary">Create a chat room and share the main website link so others can open it.</p>
+      <input id="dm-name-input" type="text" placeholder="Chat title..." class="w-full imessage-glass rounded-xl px-3.5 py-2.5 text-sm text-theme-primary placeholder-gray-400 focus:outline-none" />
       <div class="flex justify-end gap-2 pt-1">
         <button type="button" id="btn-cancel-dm" class="px-4 py-2 rounded-xl text-xs text-theme-secondary imessage-glass">Cancel</button>
         <button type="button" id="btn-create-dm" class="px-4 py-2 rounded-xl text-xs font-semibold imessage-send-btn text-white">Start Chat</button>
@@ -298,7 +304,7 @@
   <div id="modal-group" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" style="backdrop-filter: blur(5%);">
     <div class="imessage-panel rounded-[24px] p-6 max-w-md w-full space-y-4">
       <h3 class="text-base font-semibold text-theme-primary">New Group</h3>
-      <p class="text-xs text-theme-secondary">Create a group and share the main app link so anyone can join.</p>
+      <p class="text-xs text-theme-secondary">Create a group and share the main website link so anyone can join.</p>
       <input id="group-name-input" type="text" placeholder="Group Name" class="w-full imessage-glass rounded-xl px-3.5 py-2.5 text-sm text-theme-primary placeholder-gray-400 focus:outline-none" />
       <div class="flex justify-end gap-2 pt-1">
         <button type="button" id="btn-cancel-group" class="px-4 py-2 rounded-xl text-xs text-theme-secondary imessage-glass">Cancel</button>
@@ -370,6 +376,27 @@
     }
 
     document.getElementById("btn-copy-app-link").onclick = copyMainAppLink;
+
+    // Edit Permanent Display Name on demand
+    document.getElementById("btn-edit-name").onclick = async () => {
+      if (!currentUser) return;
+      const updated = prompt("Update your display name:", currentDisplayName);
+      if (!updated || !updated.trim()) return;
+      const cleanName = updated.trim().slice(0, 32);
+      currentDisplayName = cleanName;
+      localStorage.setItem("valadchat_permanent_name", cleanName);
+      document.getElementById("user-name").textContent = cleanName;
+      document.getElementById("user-avatar").textContent = cleanName.charAt(0).toUpperCase();
+      try {
+        await updateProfile(currentUser, { displayName: cleanName });
+        await set(ref(db, "users/" + currentUser.uid), {
+          uid: currentUser.uid,
+          name: cleanName,
+          savedForever: true,
+          updatedAt: Date.now()
+        });
+      } catch (e) {}
+    };
 
     // Floating AI Helper Controls
     const aiDrawer = document.getElementById("ai-drawer");
@@ -543,7 +570,7 @@
       if (!chosenName) return;
 
       errEl.classList.add("hidden");
-      statusEl.textContent = "Saving your display name...";
+      statusEl.textContent = "Saving your permanent display name...";
       statusEl.classList.remove("hidden");
 
       currentDisplayName = chosenName;
@@ -570,7 +597,6 @@
       currentUser = user;
       let permanentName = displayName || localStorage.getItem("valadchat_permanent_name") || user.displayName;
 
-      // Also check if a permanent profile name was already saved in Firebase for this UID
       try {
         const userSnap = await get(ref(db, "users/" + user.uid));
         if (userSnap.exists() && userSnap.val().name) {
@@ -586,7 +612,7 @@
       document.getElementById("login-screen").classList.add("hidden");
       document.getElementById("app-screen").classList.remove("hidden");
       document.getElementById("user-name").textContent = permanentName;
-      document.getElementById("user-handle").textContent = "Permanent Name";
+      document.getElementById("user-handle").textContent = "Saved Forever";
       document.getElementById("user-avatar").textContent = permanentName.charAt(0).toUpperCase();
 
       requestDesktopNotificationPermission();
@@ -694,13 +720,42 @@
 
     document.getElementById("btn-fav-chat").onclick = () => toggleFavoriteChat(activeChatId);
 
+    // Delete Chat Action
+    async function deleteChatById(targetChatId) {
+      if (!currentUser || !targetChatId) return;
+      const meta = chatMetaById.get(targetChatId);
+      const label = (meta && meta.title) || "this chat";
+      if (!confirm(`Delete "${label}" and its messages?`)) return;
+
+      const wasActive = String(activeChatId) === String(targetChatId);
+      if (wasActive && activeMessagesRef) {
+        off(activeMessagesRef);
+        activeChatId = null;
+        aiDrawer.classList.add("hidden");
+        document.getElementById("active-chat").classList.add("hidden");
+        document.getElementById("empty-chat").classList.remove("hidden");
+        document.getElementById("chat-pane").classList.add("hidden");
+        document.getElementById("sidebar").classList.remove("hidden");
+      }
+
+      await remove(ref(db, "messages/" + targetChatId));
+      await remove(ref(db, "chats/" + targetChatId));
+      await remove(ref(db, `favorites/${currentUser.uid}/chats/${targetChatId}`));
+      chatMetaById.delete(String(targetChatId));
+      renderChatList();
+    }
+
+    document.getElementById("btn-delete-chat").onclick = () => {
+      if (activeChatId) deleteChatById(activeChatId);
+    };
+
     // Leave Group Action
     document.getElementById("btn-leave-group").onclick = async () => {
       if (!currentUser || !activeChatId) return;
       const meta = chatMetaById.get(activeChatId);
       if (!meta || meta.type !== "group") return;
 
-      const confirmed = confirm(`Leave group "${meta.title}"? You will no longer see or receive messages from this group.`);
+      const confirmed = confirm(`Leave group "${meta.title}"?`);
       if (!confirmed) return;
 
       const leavingChatId = activeChatId;
@@ -899,7 +954,7 @@
     function getChatSubtitle(chat) {
       const memberNames = Object.values(chat.members || {});
       if (chat.type === "group") return memberNames.join(", ");
-      return memberNames.length > 1 ? memberNames.join(" & ") : "Share " + MAIN_APP_LINK + " to chat";
+      return memberNames.length > 1 ? memberNames.join(" & ") : "Open " + MAIN_APP_LINK + " to join";
     }
 
     function watchChatForNotifications(chatId, chatTitle) {
@@ -943,16 +998,10 @@
       listEl.innerHTML = "";
 
       const allChats = Object.entries(latestChatsSnapshotData || {}).filter(
-        (entry) => entry[1] && (!entry[1].members || entry[1].members[myUid] || entry[1].type === "group" || entry[1].type === "dm")
+        (entry) => entry[1] && entry[1].members
       );
 
-      // For groups, only list if user is currently a member (so leaving removes it); for DMs, show user's DMs
-      const visibleChats = allChats.filter(([_, chat]) => {
-        if (chat.type === "group") return Boolean(chat.members && chat.members[myUid]);
-        return Boolean(chat.members && chat.members[myUid]);
-      });
-
-      visibleChats.forEach(([id, chat]) => {
+      allChats.forEach(([id, chat]) => {
         const chatKey = String(id);
         const title = getChatTitle(chat, myUid);
         const fullSubtitle = getChatSubtitle(chat);
@@ -960,7 +1009,8 @@
         watchChatForNotifications(chatKey, title);
       });
 
-      const filteredChats = visibleChats.filter(([id, chat]) => {
+      const filteredChats = allChats.filter(([id, chat]) => {
+        if (chat.type === "group" && (!chat.members || !chat.members[myUid])) return false;
         if (activeTab === "dm") return chat.type !== "group";
         if (activeTab === "group") return chat.type === "group";
         if (activeTab === "fav") return Boolean(userFavorites.chats && userFavorites.chats[id]);
@@ -982,18 +1032,20 @@
         const isSelected = activeChatId !== null && String(activeChatId) === chatKey;
         const memberNames = Object.values(chat.members || {});
         const title = getChatTitle(chat, myUid);
-        const subtitle = chat.type === "group" ? (memberNames.length + " members") : (memberNames.length > 1 ? "Connected" : "Direct Chat");
+        const subtitle = chat.type === "group" ? (memberNames.length + " members") : "Direct Chat";
         const fullSubtitle = getChatSubtitle(chat);
         const isFavChat = Boolean(userFavorites.chats && userFavorites.chats[chatKey]);
 
-        const btn = document.createElement("button");
-        btn.type = "button";
-        btn.dataset.chatId = chatKey;
-        btn.className = "w-full text-left p-3 rounded-2xl transition flex items-center gap-3 " + (
+        const row = document.createElement("div");
+        row.className = "w-full p-2.5 rounded-2xl transition flex items-center gap-2.5 " + (
           isSelected
             ? "imessage-bubble-sent text-white"
             : "hover:bg-white/10"
         );
+
+        const openBtn = document.createElement("button");
+        openBtn.type = "button";
+        openBtn.className = "flex-1 text-left flex items-center gap-2.5 min-w-0";
 
         const avatar = document.createElement("div");
         avatar.className = "w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm flex-shrink-0 " + (
@@ -1014,10 +1066,25 @@
 
         info.appendChild(pTitle);
         info.appendChild(pSub);
-        btn.appendChild(avatar);
-        btn.appendChild(info);
-        btn.onclick = () => openChat(chatKey, title, fullSubtitle);
-        listEl.appendChild(btn);
+        openBtn.appendChild(avatar);
+        openBtn.appendChild(info);
+        openBtn.onclick = () => openChat(chatKey, title, fullSubtitle);
+
+        const delBtn = document.createElement("button");
+        delBtn.type = "button";
+        delBtn.title = "Delete Chat";
+        delBtn.className = "px-2 py-1 rounded-lg text-xs transition flex-shrink-0 " + (
+          isSelected ? "text-white/80 hover:text-white hover:bg-white/15" : "text-theme-secondary hover:text-rose-400 hover:bg-rose-500/10"
+        );
+        delBtn.innerHTML = "×";
+        delBtn.onclick = (e) => {
+          e.stopPropagation();
+          deleteChatById(chatKey);
+        };
+
+        row.appendChild(openBtn);
+        row.appendChild(delBtn);
+        listEl.appendChild(row);
       });
     }
 
@@ -1089,8 +1156,13 @@
       box.scrollTop = box.scrollHeight;
     }
 
-    function openChat(chatId, title, subtitle) {
+    async function openChat(chatId, title, subtitle) {
       activeChatId = String(chatId);
+      if (currentUser && currentDisplayName) {
+        try {
+          await set(ref(db, `chats/${activeChatId}/members/${currentUser.uid}`), currentDisplayName);
+        } catch (e) {}
+      }
       renderChatList();
       updateActiveChatHeaderButtons();
 
