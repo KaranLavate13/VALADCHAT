@@ -108,7 +108,7 @@
     </div>
   </div>
 
-  <!-- LOGIN SCREEN -->
+  <!-- LINK ACCESS / DISPLAY NAME SCREEN (NO GMAIL NEEDED) -->
   <div id="login-screen" class="imessage-panel p-10 rounded-[28px] max-w-md w-full mx-4 text-center">
     <div class="w-16 h-16 mx-auto mb-5 rounded-[20px] imessage-bubble-sent flex items-center justify-center">
       <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
@@ -116,11 +116,21 @@
       </svg>
     </div>
     <h1 class="text-2xl font-semibold tracking-tight text-theme-primary mb-1.5">VALADCHAT</h1>
-    <p class="text-xs text-theme-secondary mb-7">iMessage • Liquid Glass • Gmail Sign-In</p>
-    <button id="btn-login" type="button" class="w-full py-3.5 px-5 rounded-2xl imessage-glass hover:bg-white/10 text-theme-primary font-semibold text-sm flex items-center justify-center gap-3 transition cursor-pointer">
-      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5 bg-white rounded-full p-0.5" alt="Google" />
-      <span>Choose Gmail Account</span>
-    </button>
+    <p id="invite-banner" class="text-xs text-theme-secondary mb-6">Anyone with the link can join. Pick a display name to enter.</p>
+    <form id="guest-entry-form" class="space-y-3 text-left">
+      <input
+        id="guest-name-input"
+        type="text"
+        required
+        maxlength="32"
+        placeholder="Enter your display name..."
+        class="w-full imessage-glass rounded-2xl px-4 py-3.5 text-sm text-theme-primary placeholder-gray-400 focus:outline-none focus:border-sky-400/60"
+      />
+      <button id="btn-login" type="submit" class="w-full py-3.5 px-5 rounded-2xl imessage-send-btn text-white font-semibold text-sm flex items-center justify-center gap-2 transition cursor-pointer shadow-lg">
+        <span>Enter Chat</span>
+        <span>→</span>
+      </button>
+    </form>
     <p id="login-status" class="text-xs text-sky-400 mt-4 hidden"></p>
     <p id="login-error" class="text-xs text-rose-400 mt-4 hidden break-words"></p>
   </div>
@@ -130,23 +140,25 @@
 
     <!-- SIDEBAR -->
     <aside id="sidebar" class="imessage-panel rounded-[26px] w-full md:w-80 flex-shrink-0 flex flex-col overflow-hidden">
-      <!-- User Header + Controls -->
       <div class="px-4 py-3.5 border-b border-theme flex items-center justify-between gap-2">
         <div class="flex items-center gap-2.5 min-w-0">
-          <img id="user-avatar" src="" class="w-9 h-9 rounded-full border border-theme object-cover flex-shrink-0" alt="" />
+          <div id="user-avatar" class="w-9 h-9 rounded-full imessage-bubble-sent flex items-center justify-center text-white font-semibold text-sm flex-shrink-0">U</div>
           <div class="min-w-0">
             <p id="user-name" class="text-sm font-semibold text-theme-primary truncate"></p>
-            <p id="user-email" class="text-[11px] text-theme-secondary truncate"></p>
+            <p id="user-handle" class="text-[11px] text-theme-secondary truncate">Link Member</p>
           </div>
         </div>
         <div class="flex items-center gap-1">
+          <button id="btn-copy-app-link" type="button" title="Copy App Share Link" class="p-2 rounded-xl imessage-glass hover:bg-white/10 text-sky-400 transition text-xs">
+            🔗
+          </button>
           <button id="btn-theme-toggle" type="button" title="Toggle Dark / Light Mode" class="p-2 rounded-xl imessage-glass hover:bg-white/10 text-theme-primary transition text-xs">
             <span id="theme-icon">☀️</span>
           </button>
           <button id="btn-sound-toggle" type="button" title="Toggle Notification Sound" class="p-2 rounded-xl imessage-glass hover:bg-white/10 text-sky-400 transition text-xs">
             <span id="sound-icon">🔔</span>
           </button>
-          <button id="btn-logout" type="button" title="Switch Account / Logout" class="p-2 rounded-xl imessage-glass hover:bg-white/10 text-theme-secondary hover:text-theme-primary transition">
+          <button id="btn-logout" type="button" title="Change Name / Leave Session" class="p-2 rounded-xl imessage-glass hover:bg-white/10 text-theme-secondary hover:text-theme-primary transition">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
             </svg>
@@ -154,13 +166,11 @@
         </div>
       </div>
 
-      <!-- New Chat Actions -->
       <div class="p-2.5 grid grid-cols-2 gap-2 border-b border-theme">
         <button id="btn-new-dm" type="button" class="imessage-glass hover:bg-white/10 text-xs font-medium py-2 px-3 rounded-xl text-sky-400 transition">+ Direct Chat</button>
         <button id="btn-new-group" type="button" class="imessage-glass hover:bg-white/10 text-xs font-medium py-2 px-3 rounded-xl text-theme-primary transition">+ New Group</button>
       </div>
 
-      <!-- Category Tabs: Individual | Groups | Favorites -->
       <div class="px-2.5 pt-2.5 pb-1.5 border-b border-theme">
         <div class="grid grid-cols-3 gap-1 p-1 rounded-2xl imessage-glass">
           <button id="tab-dm" type="button" class="py-1.5 px-2 rounded-xl text-xs font-semibold transition imessage-bubble-sent text-white">
@@ -175,7 +185,6 @@
         </div>
       </div>
 
-      <!-- Sidebar List -->
       <div id="chat-list" class="flex-1 overflow-y-auto p-2 space-y-1">
         <p class="text-xs text-theme-secondary text-center mt-10">No conversations yet.</p>
       </div>
@@ -183,14 +192,12 @@
 
     <!-- CHAT / FAVORITES PANE -->
     <main id="chat-pane" class="imessage-panel rounded-[26px] flex-1 hidden md:flex flex-col overflow-hidden relative">
-      <!-- Empty State -->
       <div id="empty-chat" class="flex-1 flex flex-col items-center justify-center text-center p-6">
         <div class="w-12 h-12 rounded-2xl imessage-glass flex items-center justify-center mb-3 text-sky-400 text-lg font-semibold">iM</div>
         <h2 class="text-base font-semibold text-theme-primary">Messages</h2>
-        <p class="text-xs text-theme-secondary mt-1 max-w-xs">Select a thread, group, or saved favorite. Paste screenshots with Ctrl+V or attach images.</p>
+        <p class="text-xs text-theme-secondary mt-1 max-w-xs">Start a direct chat or group, copy its share link for anyone to join, and paste screenshots with Ctrl+V.</p>
       </div>
 
-      <!-- Saved Favorites Vault View -->
       <div id="favorites-vault" class="hidden flex-1 flex flex-col h-full">
         <div class="px-4 py-3 border-b border-theme flex items-center justify-between gap-3 imessage-glass">
           <div class="flex items-center gap-2.5">
@@ -205,7 +212,6 @@
         <div id="favorites-items-box" class="flex-1 overflow-y-auto p-4 space-y-3"></div>
       </div>
 
-      <!-- Active Chat Container -->
       <div id="active-chat" class="hidden flex-1 flex flex-col h-full">
         <div class="px-4 py-3 border-b border-theme flex items-center justify-between gap-2 imessage-glass">
           <div class="flex items-center gap-2.5 min-w-0">
@@ -215,19 +221,46 @@
               <p id="chat-subtitle" class="text-[11px] text-theme-secondary truncate"></p>
             </div>
           </div>
-          <div class="flex items-center gap-1.5 flex-shrink-0">
+          <div class="flex items-center gap-1.5 flex-shrink-0 relative">
+            <button id="btn-share-chat" type="button" title="Copy Invite Link for This Chat" class="px-2.5 py-1.5 rounded-xl imessage-glass hover:bg-white/10 text-xs font-medium text-sky-400 transition">
+              Share Link
+            </button>
             <button id="btn-fav-chat" type="button" title="Save / Unsave Chat to Favorites" class="px-2.5 py-1.5 rounded-xl imessage-glass hover:bg-white/10 text-xs font-medium text-amber-400 transition">
               ☆ Fav
+            </button>
+            <!-- FLOATING AI BUTTON BESIDE FAV -->
+            <button id="btn-floating-ai" type="button" title="AI Assistant" class="px-3 py-1.5 rounded-xl imessage-bubble-sent text-white text-xs font-semibold shadow-md hover:opacity-95 transition flex items-center gap-1">
+              <span>✨</span>
+              <span>AI</span>
             </button>
             <button id="btn-leave-group" type="button" title="Leave this group" class="hidden px-2.5 py-1.5 rounded-xl imessage-glass hover:bg-rose-500/20 text-xs font-medium text-rose-400 transition">
               Leave Group
             </button>
+
+            <!-- FLOATING AI DRAWER POPOVER -->
+            <div id="ai-drawer" class="hidden fixed top-20 right-4 sm:right-8 z-50 w-80 sm:w-96 imessage-panel rounded-3xl p-4 space-y-3">
+              <div class="flex items-center justify-between border-b border-theme pb-2">
+                <div class="flex items-center gap-2">
+                  <span class="w-6 h-6 rounded-full imessage-bubble-sent flex items-center justify-center text-xs text-white">✨</span>
+                  <span class="text-xs font-semibold text-theme-primary">VALADCHAT AI Helper</span>
+                </div>
+                <button id="btn-close-ai" type="button" class="text-xs text-theme-secondary hover:text-theme-primary px-1.5 py-0.5 rounded-lg imessage-glass">×</button>
+              </div>
+              <div class="flex gap-1.5">
+                <button id="btn-ai-summarize" type="button" class="flex-1 py-1.5 px-2.5 rounded-xl imessage-glass hover:bg-white/10 text-xs font-medium text-sky-400 transition">Summarize Thread</button>
+                <button id="btn-ai-draft" type="button" class="flex-1 py-1.5 px-2.5 rounded-xl imessage-glass hover:bg-white/10 text-xs font-medium text-theme-primary transition">Draft Reply</button>
+              </div>
+              <textarea id="ai-prompt-input" rows="2" placeholder="Ask AI to draft a reply or note..." class="w-full imessage-glass rounded-xl p-2.5 text-xs text-theme-primary placeholder-gray-400 focus:outline-none"></textarea>
+              <div id="ai-output-box" class="imessage-glass rounded-2xl p-3 text-xs text-theme-primary max-h-40 overflow-y-auto whitespace-pre-wrap">Tap "Summarize Thread" or "Draft Reply" to generate a quick response from this conversation.</div>
+              <div class="flex justify-end gap-2">
+                <button id="btn-ai-insert" type="button" class="px-3 py-1.5 rounded-xl imessage-send-btn text-white text-xs font-semibold">Insert into Input</button>
+              </div>
+            </div>
           </div>
         </div>
 
         <div id="messages-box" class="flex-1 overflow-y-auto px-4 py-3 space-y-2.5"></div>
 
-        <!-- SCREENSHOT PREVIEW -->
         <div id="image-preview-bar" class="hidden px-4 py-2 imessage-glass border-t border-theme flex items-center justify-between">
           <div class="flex items-center gap-3">
             <img id="preview-thumb" src="" class="h-12 w-auto rounded-xl border border-theme object-cover" />
@@ -236,7 +269,6 @@
           <button id="btn-clear-image" type="button" class="text-xs text-rose-400 hover:text-rose-300 px-2.5 py-1 rounded-lg imessage-glass">Remove</button>
         </div>
 
-        <!-- IMESSAGE COMPOSER BAR -->
         <form id="message-form" class="p-3 border-t border-theme flex items-center gap-2">
           <input type="file" id="image-input" accept="image/png,image/jpeg,image/webp" class="hidden" />
           <button id="btn-attach" type="button" title="Attach Screenshot / Image Only" class="w-9 h-9 rounded-full imessage-glass hover:bg-white/10 text-theme-secondary hover:text-theme-primary flex items-center justify-center flex-shrink-0 transition">
@@ -259,14 +291,15 @@
     </main>
   </div>
 
-  <!-- MODAL: NEW DM -->
+  <!-- MODAL: NEW DIRECT CHAT -->
   <div id="modal-dm" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" style="backdrop-filter: blur(5%);">
     <div class="imessage-panel rounded-[24px] p-6 max-w-sm w-full space-y-4">
-      <h3 class="text-base font-semibold text-theme-primary">New iMessage</h3>
-      <input id="dm-email-input" type="email" placeholder="recipient@gmail.com" class="w-full imessage-glass rounded-xl px-3.5 py-2.5 text-sm text-theme-primary placeholder-gray-400 focus:outline-none" />
+      <h3 class="text-base font-semibold text-theme-primary">New Direct Chat</h3>
+      <p class="text-xs text-theme-secondary">Give this 1-on-1 room a label, then share its invite link with the person you want to chat with.</p>
+      <input id="dm-name-input" type="text" placeholder="Person's name or chat label..." class="w-full imessage-glass rounded-xl px-3.5 py-2.5 text-sm text-theme-primary placeholder-gray-400 focus:outline-none" />
       <div class="flex justify-end gap-2 pt-1">
         <button type="button" id="btn-cancel-dm" class="px-4 py-2 rounded-xl text-xs text-theme-secondary imessage-glass">Cancel</button>
-        <button type="button" id="btn-create-dm" class="px-4 py-2 rounded-xl text-xs font-semibold imessage-send-btn text-white">Start Chat</button>
+        <button type="button" id="btn-create-dm" class="px-4 py-2 rounded-xl text-xs font-semibold imessage-send-btn text-white">Create & Copy Link</button>
       </div>
     </div>
   </div>
@@ -275,11 +308,11 @@
   <div id="modal-group" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" style="backdrop-filter: blur(5%);">
     <div class="imessage-panel rounded-[24px] p-6 max-w-md w-full space-y-4">
       <h3 class="text-base font-semibold text-theme-primary">New Group</h3>
+      <p class="text-xs text-theme-secondary">Create a group and share its invite link so anyone can join.</p>
       <input id="group-name-input" type="text" placeholder="Group Name" class="w-full imessage-glass rounded-xl px-3.5 py-2.5 text-sm text-theme-primary placeholder-gray-400 focus:outline-none" />
-      <textarea id="group-members-input" rows="3" placeholder="user1@gmail.com, user2@gmail.com" class="w-full imessage-glass rounded-xl px-3.5 py-2.5 text-sm text-theme-primary placeholder-gray-400 focus:outline-none"></textarea>
       <div class="flex justify-end gap-2 pt-1">
         <button type="button" id="btn-cancel-group" class="px-4 py-2 rounded-xl text-xs text-theme-secondary imessage-glass">Cancel</button>
-        <button type="button" id="btn-create-group" class="px-4 py-2 rounded-xl text-xs font-semibold imessage-send-btn text-white">Create Group</button>
+        <button type="button" id="btn-create-group" class="px-4 py-2 rounded-xl text-xs font-semibold imessage-send-btn text-white">Create & Copy Link</button>
       </div>
     </div>
   </div>
@@ -291,7 +324,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-    import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+    import { getAuth, signInAnonymously, updateProfile, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
     import { getDatabase, ref, set, push, remove, onValue, off, get } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
 
     const errEl = document.getElementById("login-error");
@@ -317,13 +350,13 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getDatabase(app);
-    const provider = new GoogleAuthProvider();
-    provider.setCustomParameters({ prompt: "select_account" });
 
     let currentUser = null;
+    let currentDisplayName = localStorage.getItem("valadchat_guest_name") || "";
     let activeChatId = null;
-    let activeTab = "dm"; // "dm" | "group" | "fav"
+    let activeTab = "dm";
     let activeMessagesRef = null;
+    let latestMessagesList = [];
     let pendingImageBase64 = null;
     let soundEnabled = true;
     let bubbleTimer = null;
@@ -332,7 +365,72 @@
     const chatMetaById = new Map();
     const watchedChatListeners = new Set();
 
-    const sanitizeEmail = (email) => email.trim().toLowerCase().replace(/\./g, ",");
+    const urlParams = new URLSearchParams(window.location.search);
+    let pendingInviteChatId = urlParams.get("chat") || "";
+
+    if (pendingInviteChatId) {
+      document.getElementById("invite-banner").textContent = "You were invited to a chat! Enter a display name to jump right in.";
+    }
+    if (currentDisplayName) {
+      document.getElementById("guest-name-input").value = currentDisplayName;
+    }
+
+    function buildShareUrl(chatId) {
+      const base = window.location.origin + window.location.pathname;
+      return chatId ? `${base}?chat=${encodeURIComponent(chatId)}` : base;
+    }
+
+    async function copyToClipboard(text, label) {
+      try {
+        await navigator.clipboard.writeText(text);
+        alert(`${label} copied to clipboard:\n${text}`);
+      } catch (e) {
+        prompt(`Copy this ${label}:`, text);
+      }
+    }
+
+    // Floating AI Helper Controls
+    const aiDrawer = document.getElementById("ai-drawer");
+    document.getElementById("btn-floating-ai").onclick = () => {
+      aiDrawer.classList.toggle("hidden");
+    };
+    document.getElementById("btn-close-ai").onclick = () => {
+      aiDrawer.classList.add("hidden");
+    };
+
+    document.getElementById("btn-ai-summarize").onclick = () => {
+      const textMsgs = latestMessagesList.filter(m => m.text).slice(-12);
+      const imgCount = latestMessagesList.filter(m => m.image).length;
+      if (textMsgs.length === 0 && imgCount === 0) {
+        document.getElementById("ai-output-box").textContent = "No messages in this thread yet to summarize.";
+        return;
+      }
+      const bullets = textMsgs.map(m => `• ${m.senderName || "Member"}: ${m.text}`).join("\n");
+      const summary = `Recent activity (${textMsgs.length} text msg(s), ${imgCount} screenshot(s)):\n${bullets}`;
+      document.getElementById("ai-output-box").textContent = summary;
+    };
+
+    document.getElementById("btn-ai-draft").onclick = () => {
+      const customNote = document.getElementById("ai-prompt-input").value.trim();
+      const lastMsg = [...latestMessagesList].reverse().find(m => m.text);
+      let draft = "";
+      if (customNote) {
+        draft = `Got it — ${customNote}. Let me know if you need a screenshot or more details.`;
+      } else if (lastMsg && lastMsg.senderUid !== currentUser?.uid) {
+        draft = `Thanks ${lastMsg.senderName || "for the update"}! Looking into that right now.`;
+      } else {
+        draft = "Sounds good! Sharing an update shortly.";
+      }
+      document.getElementById("ai-output-box").textContent = draft;
+    };
+
+    document.getElementById("btn-ai-insert").onclick = () => {
+      const outText = document.getElementById("ai-output-box").textContent.trim();
+      if (!outText || outText.startsWith("No messages") || outText.startsWith("Tap ")) return;
+      document.getElementById("message-input").value = outText;
+      aiDrawer.classList.add("hidden");
+      document.getElementById("message-input").focus();
+    };
 
     // Dark / Light Theme Toggle
     function applyTheme(mode) {
@@ -457,53 +555,113 @@
       document.getElementById("sound-icon").innerHTML = soundEnabled ? "🔔" : "🔇";
     };
 
-    getRedirectResult(auth).catch((err) => {
-      if (err && err.code) showError("Redirect error: " + err.code + " - " + err.message);
-    });
+    document.getElementById("btn-copy-app-link").onclick = () => {
+      copyToClipboard(buildShareUrl(""), "App share link");
+    };
 
-    document.getElementById("btn-login").onclick = async () => {
+    document.getElementById("btn-share-chat").onclick = () => {
+      if (!activeChatId) return;
+      copyToClipboard(buildShareUrl(activeChatId), "Chat invite link");
+    };
+
+    // Guest / Link Entry Form (Anonymous Auth)
+    document.getElementById("guest-entry-form").onsubmit = async (e) => {
+      e.preventDefault();
+      const chosenName = document.getElementById("guest-name-input").value.trim();
+      if (!chosenName) return;
+
       errEl.classList.add("hidden");
-      statusEl.textContent = "Opening Google account selector...";
+      statusEl.textContent = "Joining VALADCHAT...";
       statusEl.classList.remove("hidden");
+
+      currentDisplayName = chosenName;
+      localStorage.setItem("valadchat_guest_name", chosenName);
+
       try {
-        await signInWithPopup(auth, provider);
-      } catch (err) {
-        if (err.code === "auth/popup-blocked" || err.code === "auth/cancelled-popup-request") {
-          statusEl.textContent = "Redirecting to Google sign-in...";
-          await signInWithRedirect(auth, provider);
+        if (auth.currentUser) {
+          await updateProfile(auth.currentUser, { displayName: chosenName });
+          await enterAppWithUser(auth.currentUser, chosenName);
         } else {
-          showError("Sign-in failed (" + (err.code || "error") + "): " + err.message);
+          const cred = await signInAnonymously(auth);
+          await updateProfile(cred.user, { displayName: chosenName });
+        }
+      } catch (err) {
+        if (err.code === "auth/operation-not-allowed") {
+          showError("Enable 'Anonymous' sign-in in Firebase Console > Authentication > Sign-in method.");
+        } else {
+          showError("Entry failed (" + (err.code || "error") + "): " + err.message);
         }
       }
     };
 
-    document.getElementById("btn-logout").onclick = () => signOut(auth);
+    document.getElementById("btn-logout").onclick = async () => {
+      localStorage.removeItem("valadchat_guest_name");
+      currentDisplayName = "";
+      document.getElementById("guest-name-input").value = "";
+      await signOut(auth);
+    };
+
+    async function joinChatByIdIfInvited(uid, displayName) {
+      if (!pendingInviteChatId) return;
+      const targetId = pendingInviteChatId;
+      pendingInviteChatId = "";
+
+      window.history.replaceState({}, document.title, window.location.pathname);
+
+      try {
+        const chatSnap = await get(ref(db, "chats/" + targetId));
+        if (!chatSnap.exists()) {
+          alert("This invite link is invalid or the group no longer exists.");
+          return;
+        }
+        const chat = chatSnap.val();
+        await set(ref(db, `chats/${targetId}/members/${uid}`), displayName);
+
+        const title = getChatTitle(chat, uid);
+        const subtitle = getChatSubtitle(chat);
+        setActiveTab(chat.type === "group" ? "group" : "dm");
+        openChat(targetId, title, subtitle);
+      } catch (err) {
+        console.error("Invite join error:", err);
+      }
+    }
+
+    async function enterAppWithUser(user, displayName) {
+      currentUser = user;
+      const nameToUse = displayName || user.displayName || localStorage.getItem("valadchat_guest_name") || ("Guest-" + user.uid.slice(0, 4));
+      currentDisplayName = nameToUse;
+
+      statusEl.classList.add("hidden");
+      document.getElementById("login-screen").classList.add("hidden");
+      document.getElementById("app-screen").classList.remove("hidden");
+      document.getElementById("user-name").textContent = nameToUse;
+      document.getElementById("user-handle").textContent = "ID: " + user.uid.slice(0, 6);
+      document.getElementById("user-avatar").textContent = nameToUse.charAt(0).toUpperCase();
+
+      requestDesktopNotificationPermission();
+
+      try {
+        await set(ref(db, "users/" + user.uid), {
+          uid: user.uid,
+          name: nameToUse,
+          updatedAt: Date.now()
+        });
+      } catch (e) {
+        console.error(e);
+      }
+
+      listenToFavorites(user.uid);
+      listenToUserChats();
+      await joinChatByIdIfInvited(user.uid, nameToUse);
+    }
 
     onAuthStateChanged(auth, async (user) => {
       if (user) {
-        currentUser = user;
-        statusEl.classList.add("hidden");
-        document.getElementById("login-screen").classList.add("hidden");
-        document.getElementById("app-screen").classList.remove("hidden");
-        document.getElementById("user-name").textContent = user.displayName || user.email;
-        document.getElementById("user-email").textContent = user.email;
-        document.getElementById("user-avatar").src = user.photoURL || ("https://ui-avatars.com/api/?name=" + encodeURIComponent(user.email));
-
-        requestDesktopNotificationPermission();
-
-        const myKey = sanitizeEmail(user.email);
-        try {
-          await set(ref(db, "users/" + myKey), {
-            email: user.email.toLowerCase(),
-            name: user.displayName || user.email.split("@")[0],
-            photo: user.photoURL || ""
-          });
-        } catch (e) {
-          console.error(e);
+        const savedName = currentDisplayName || user.displayName || localStorage.getItem("valadchat_guest_name");
+        if (!savedName) {
+          return;
         }
-
-        listenToFavorites(myKey);
-        listenToUserChats();
+        await enterAppWithUser(user, savedName);
       } else {
         currentUser = null;
         activeChatId = null;
@@ -515,8 +673,8 @@
     });
 
     // Favorites Sync & Actions
-    function listenToFavorites(myKey) {
-      onValue(ref(db, "favorites/" + myKey), (snap) => {
+    function listenToFavorites(uid) {
+      onValue(ref(db, "favorites/" + uid), (snap) => {
         const val = snap.val() || {};
         userFavorites = {
           chats: val.chats || {},
@@ -530,8 +688,7 @@
 
     async function toggleFavoriteChat(chatId) {
       if (!currentUser || !chatId) return;
-      const myKey = sanitizeEmail(currentUser.email);
-      const favChatRef = ref(db, `favorites/${myKey}/chats/${chatId}`);
+      const favChatRef = ref(db, `favorites/${currentUser.uid}/chats/${chatId}`);
       if (userFavorites.chats && userFavorites.chats[chatId]) {
         await remove(favChatRef);
       } else {
@@ -541,9 +698,8 @@
 
     async function toggleFavoriteMessage(chatId, msgId, msgObj) {
       if (!currentUser || !chatId || !msgId) return;
-      const myKey = sanitizeEmail(currentUser.email);
       const favKey = `${chatId}__${msgId}`;
-      const favMsgRef = ref(db, `favorites/${myKey}/messages/${favKey}`);
+      const favMsgRef = ref(db, `favorites/${currentUser.uid}/messages/${favKey}`);
       if (userFavorites.messages && userFavorites.messages[favKey]) {
         await remove(favMsgRef);
       } else {
@@ -552,8 +708,8 @@
           chatId,
           chatTitle: (meta && meta.title) || "Chat",
           msgId,
-          senderName: msgObj.senderName || msgObj.senderEmail,
-          senderEmail: msgObj.senderEmail,
+          senderName: msgObj.senderName || "Member",
+          senderUid: msgObj.senderUid || "",
           text: msgObj.text || "",
           image: msgObj.image || null,
           timestamp: msgObj.timestamp || Date.now(),
@@ -579,7 +735,6 @@
 
     document.getElementById("btn-fav-chat").onclick = () => toggleFavoriteChat(activeChatId);
 
-    // Leave Group Action
     document.getElementById("btn-leave-group").onclick = async () => {
       if (!currentUser || !activeChatId) return;
       const meta = chatMetaById.get(activeChatId);
@@ -588,14 +743,13 @@
       const confirmed = confirm(`Leave group "${meta.title}"? You will no longer see or receive messages from this group.`);
       if (!confirmed) return;
 
-      const myKey = sanitizeEmail(currentUser.email);
       const leavingChatId = activeChatId;
-
-      await remove(ref(db, `chats/${leavingChatId}/members/${myKey}`));
-      await remove(ref(db, `favorites/${myKey}/chats/${leavingChatId}`));
+      await remove(ref(db, `chats/${leavingChatId}/members/${currentUser.uid}`));
+      await remove(ref(db, `favorites/${currentUser.uid}/chats/${leavingChatId}`));
 
       if (activeMessagesRef) off(activeMessagesRef);
       activeChatId = null;
+      aiDrawer.classList.add("hidden");
       document.getElementById("active-chat").classList.add("hidden");
       document.getElementById("empty-chat").classList.remove("hidden");
       document.getElementById("chat-pane").classList.add("hidden");
@@ -621,6 +775,7 @@
 
       if (tab === "fav") {
         activeChatId = null;
+        aiDrawer.classList.add("hidden");
         document.getElementById("empty-chat").classList.add("hidden");
         document.getElementById("active-chat").classList.add("hidden");
         document.getElementById("favorites-vault").classList.remove("hidden");
@@ -726,7 +881,6 @@
       });
     }
 
-    // Modals
     function closeModals() {
       document.getElementById("modal-dm").classList.add("hidden");
       document.getElementById("modal-group").classList.add("hidden");
@@ -738,55 +892,57 @@
     document.getElementById("lightbox").onclick = () => document.getElementById("lightbox").classList.add("hidden");
 
     document.getElementById("btn-create-dm").onclick = async () => {
-      const rawEmail = document.getElementById("dm-email-input").value.trim().toLowerCase();
-      if (!rawEmail || !rawEmail.includes("@") || rawEmail === currentUser.email.toLowerCase()) {
-        return alert("Please enter a valid Gmail address other than your own.");
-      }
-      const myKey = sanitizeEmail(currentUser.email);
-      const otherKey = sanitizeEmail(rawEmail);
-      const chatId = "dm_" + [myKey, otherKey].sort().join("__");
+      const label = document.getElementById("dm-name-input").value.trim() || "Direct Chat";
+      const newDmRef = push(ref(db, "chats"));
+      await set(newDmRef, {
+        type: "dm",
+        name: label,
+        members: {
+          [currentUser.uid]: currentDisplayName
+        },
+        createdAt: Date.now()
+      });
 
-      const chatRef = ref(db, "chats/" + chatId);
-      const snap = await get(chatRef);
-      if (!snap.exists()) {
-        await set(chatRef, {
-          type: "dm",
-          members: {
-            [myKey]: currentUser.email.toLowerCase(),
-            [otherKey]: rawEmail
-          },
-          createdAt: Date.now()
-        });
-      }
-      document.getElementById("dm-email-input").value = "";
+      document.getElementById("dm-name-input").value = "";
       closeModals();
       setActiveTab("dm");
-      openChat(chatId, rawEmail, "iMessage");
+      openChat(newDmRef.key, label, "Share link to invite");
+      copyToClipboard(buildShareUrl(newDmRef.key), "Direct chat invite link");
     };
 
     document.getElementById("btn-create-group").onclick = async () => {
       const name = document.getElementById("group-name-input").value.trim();
-      const rawList = document.getElementById("group-members-input").value.split(",").map(e => e.trim().toLowerCase()).filter(e => e.includes("@"));
       if (!name) return alert("Enter a group name.");
-      if (rawList.length === 0) return alert("Enter at least one member Gmail address.");
-
-      const membersObj = { [sanitizeEmail(currentUser.email)]: currentUser.email.toLowerCase() };
-      rawList.forEach(email => { membersObj[sanitizeEmail(email)] = email; });
 
       const newGroupRef = push(ref(db, "chats"));
       await set(newGroupRef, {
         type: "group",
         name: name,
-        members: membersObj,
+        members: {
+          [currentUser.uid]: currentDisplayName
+        },
         createdAt: Date.now()
       });
 
       document.getElementById("group-name-input").value = "";
-      document.getElementById("group-members-input").value = "";
       closeModals();
       setActiveTab("group");
-      openChat(newGroupRef.key, name, Object.values(membersObj).join(", "));
+      openChat(newGroupRef.key, name, currentDisplayName);
+      copyToClipboard(buildShareUrl(newGroupRef.key), "Group invite link");
     };
+
+    function getChatTitle(chat, myUid) {
+      if (chat.type === "group") return chat.name || "Group";
+      const entries = Object.entries(chat.members || {});
+      const other = entries.find(([uid]) => uid !== myUid);
+      return other ? other[1] : (chat.name || "Direct Chat");
+    }
+
+    function getChatSubtitle(chat) {
+      const memberNames = Object.values(chat.members || {});
+      if (chat.type === "group") return memberNames.join(", ");
+      return memberNames.length > 1 ? memberNames.join(" & ") : "Waiting for invitee (tap Share Link)";
+    }
 
     function watchChatForNotifications(chatId, chatTitle) {
       if (watchedChatListeners.has(chatId)) return;
@@ -808,12 +964,12 @@
         entries.forEach(([key, m]) => {
           if (!knownKeys.has(key)) {
             knownKeys.add(key);
-            if (currentUser && m.senderEmail !== currentUser.email.toLowerCase()) {
+            if (currentUser && m.senderUid !== currentUser.uid) {
               const meta = chatMetaById.get(chatId);
               triggerMessageNotification(
                 chatId,
                 (meta && meta.title) || chatTitle,
-                m.senderName || m.senderEmail,
+                m.senderName || "Member",
                 m
               );
             }
@@ -824,22 +980,18 @@
 
     function renderChatList() {
       if (!currentUser) return;
-      const myKey = sanitizeEmail(currentUser.email);
+      const myUid = currentUser.uid;
       const listEl = document.getElementById("chat-list");
       listEl.innerHTML = "";
 
       const allMyChats = Object.entries(latestChatsSnapshotData || {}).filter(
-        (entry) => entry[1] && entry[1].members && entry[1].members[myKey]
+        (entry) => entry[1] && entry[1].members && entry[1].members[myUid]
       );
 
-      // Update metadata cache for all user chats
       allMyChats.forEach(([id, chat]) => {
         const chatKey = String(id);
-        const memberEmails = Object.values(chat.members);
-        const title = chat.type === "group"
-          ? chat.name
-          : (memberEmails.find(e => e !== currentUser.email.toLowerCase()) || currentUser.email);
-        const fullSubtitle = chat.type === "group" ? memberEmails.join(", ") : "iMessage";
+        const title = getChatTitle(chat, myUid);
+        const fullSubtitle = getChatSubtitle(chat);
         chatMetaById.set(chatKey, { title, subtitle: fullSubtitle, type: chat.type });
         watchChatForNotifications(chatKey, title);
       });
@@ -864,12 +1016,10 @@
       filteredChats.forEach(([id, chat]) => {
         const chatKey = String(id);
         const isSelected = activeChatId !== null && String(activeChatId) === chatKey;
-        const memberEmails = Object.values(chat.members);
-        const title = chat.type === "group"
-          ? chat.name
-          : (memberEmails.find(e => e !== currentUser.email.toLowerCase()) || currentUser.email);
-        const subtitle = chat.type === "group" ? (memberEmails.length + " members") : "iMessage";
-        const fullSubtitle = chat.type === "group" ? memberEmails.join(", ") : "iMessage";
+        const memberNames = Object.values(chat.members || {});
+        const title = getChatTitle(chat, myUid);
+        const subtitle = chat.type === "group" ? (memberNames.length + " members") : (memberNames.length > 1 ? "Connected" : "Share Link to Invite");
+        const fullSubtitle = getChatSubtitle(chat);
         const isFavChat = Boolean(userFavorites.chats && userFavorites.chats[chatKey]);
 
         const btn = document.createElement("button");
@@ -911,14 +1061,20 @@
       onValue(ref(db, "chats"), (snapshot) => {
         latestChatsSnapshotData = snapshot.val() || {};
         renderChatList();
+        if (activeChatId && chatMetaById.has(activeChatId)) {
+          const meta = chatMetaById.get(activeChatId);
+          document.getElementById("chat-title").textContent = meta.title;
+          document.getElementById("chat-subtitle").textContent = meta.subtitle;
+        }
       });
     }
 
     function renderMessages(msgsObj) {
       const box = document.getElementById("messages-box");
       box.innerHTML = "";
+      latestMessagesList = Object.values(msgsObj || {});
       Object.entries(msgsObj || {}).forEach(([msgId, m]) => {
-        const isMe = m.senderEmail === currentUser.email.toLowerCase();
+        const isMe = m.senderUid === currentUser.uid;
         const wrap = document.createElement("div");
         wrap.className = "flex flex-col " + (isMe ? "items-end" : "items-start");
 
@@ -928,7 +1084,7 @@
         const meta = document.createElement("span");
         meta.className = "text-[10px] text-theme-secondary";
         const timeStr = new Date(m.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-        meta.textContent = (isMe ? "You" : (m.senderName || m.senderEmail)) + " • " + timeStr;
+        meta.textContent = (isMe ? "You" : (m.senderName || "Member")) + " • " + timeStr;
 
         const favKey = `${activeChatId}__${msgId}`;
         const isMsgFav = Boolean(userFavorites.messages && userFavorites.messages[favKey]);
@@ -969,8 +1125,6 @@
       box.scrollTop = box.scrollHeight;
     }
 
-    let latestActiveMessages = {};
-
     function openChat(chatId, title, subtitle) {
       activeChatId = String(chatId);
       renderChatList();
@@ -991,13 +1145,13 @@
       activeMessagesRef = ref(db, "messages/" + activeChatId);
 
       onValue(activeMessagesRef, (snapshot) => {
-        latestActiveMessages = snapshot.val() || {};
-        renderMessages(latestActiveMessages);
+        renderMessages(snapshot.val() || {});
       });
     }
 
     document.getElementById("btn-back").onclick = () => {
       activeChatId = null;
+      aiDrawer.classList.add("hidden");
       renderChatList();
       document.getElementById("chat-pane").classList.add("hidden");
       document.getElementById("sidebar").classList.remove("hidden");
@@ -1008,7 +1162,6 @@
       document.getElementById("sidebar").classList.remove("hidden");
     };
 
-    // Strict Screenshot / Image Handling
     const ALLOWED_TYPES = ["image/png", "image/jpeg", "image/webp"];
 
     function processImageFile(file) {
@@ -1076,8 +1229,8 @@
       if (!text && !pendingImageBase64) return;
 
       const msgData = {
-        senderEmail: currentUser.email.toLowerCase(),
-        senderName: currentUser.displayName || currentUser.email.split("@")[0],
+        senderUid: currentUser.uid,
+        senderName: currentDisplayName,
         text: text,
         image: pendingImageBase64 || null,
         timestamp: Date.now()
