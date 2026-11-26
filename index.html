@@ -72,6 +72,15 @@
       color: var(--text-primary);
     }
 
+    .imessage-bubble-deleted {
+      background: rgba(148, 163, 184, 0.08);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border: 1px dashed var(--glass-border);
+      color: var(--text-secondary);
+      font-style: italic;
+    }
+
     .imessage-send-btn {
       background: var(--imessage-blue);
     }
@@ -211,7 +220,7 @@
       </div>
 
       <div id="active-chat" class="hidden flex-1 flex flex-col h-full">
-        <div class="px-4 py-3 border-b border-theme flex items-center justify-between gap-2 imessage-glass">
+        <div class="px-4 py-3 border-b border-theme flex flex-wrap items-center justify-between gap-2 imessage-glass">
           <div class="flex items-center gap-2.5 min-w-0">
             <button id="btn-back" type="button" class="md:hidden px-2.5 py-1.5 rounded-xl imessage-glass text-sky-400 text-xs font-medium">‹ Back</button>
             <div class="min-w-0">
@@ -219,7 +228,7 @@
               <p id="chat-subtitle" class="text-[11px] text-theme-secondary truncate"></p>
             </div>
           </div>
-          <div class="flex items-center gap-1.5 flex-shrink-0 relative">
+          <div class="flex items-center gap-1.5 flex-wrap flex-shrink-0 relative">
             <button id="btn-fav-chat" type="button" title="Save / Unsave Chat to Favorites" class="px-2.5 py-1.5 rounded-xl imessage-glass hover:bg-white/10 text-xs font-medium text-amber-400 transition">
               ☆ Fav
             </button>
@@ -230,8 +239,11 @@
             <button id="btn-leave-group" type="button" title="Leave this group" class="hidden px-2.5 py-1.5 rounded-xl imessage-glass hover:bg-amber-500/20 text-xs font-medium text-amber-300 transition">
               Leave Group
             </button>
-            <button id="btn-delete-chat" type="button" title="Delete this chat" class="px-2.5 py-1.5 rounded-xl imessage-glass hover:bg-rose-500/20 text-xs font-medium text-rose-400 transition">
-              Delete
+            <button id="btn-delete-me" type="button" title="Delete chat only for you" class="px-2.5 py-1.5 rounded-xl imessage-glass hover:bg-white/10 text-xs font-medium text-theme-secondary hover:text-theme-primary transition">
+              Delete for Me
+            </button>
+            <button id="btn-delete-everyone" type="button" title="Delete chat for everyone and leave a deleted trail" class="px-2.5 py-1.5 rounded-xl imessage-glass hover:bg-rose-500/20 text-xs font-medium text-rose-400 transition">
+              Delete for Everyone
             </button>
 
             <div id="ai-drawer" class="hidden fixed top-20 right-4 sm:right-8 z-50 w-80 sm:w-96 imessage-panel rounded-3xl p-4 space-y-3">
@@ -279,7 +291,7 @@
             placeholder="iMessage or paste screenshot (Ctrl+V)..."
             class="flex-1 imessage-glass rounded-full px-4 py-2 text-sm text-theme-primary placeholder-gray-400 focus:outline-none focus:border-sky-400/60"
           />
-          <button type="submit" aria-label="Send" class="w-9 h-9 rounded-full imessage-send-btn text-white font-bold text-sm flex items-center justify-center flex-shrink-0 transition shadow-md">
+          <button id="btn-send-msg" type="submit" aria-label="Send" class="w-9 h-9 rounded-full imessage-send-btn text-white font-bold text-sm flex items-center justify-center flex-shrink-0 transition shadow-md">
             ↑
           </button>
         </form>
@@ -321,7 +333,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
     import { getAuth, signInAnonymously, updateProfile, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
-    import { getDatabase, ref, set, push, remove, onValue, off, get } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+    import { getDatabase, ref, set, push, remove, update, onValue, off, get } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
 
     const MAIN_APP_LINK = "https://karanlavate13.github.io/VALADCHAT/";
     const errEl = document.getElementById("login-error");
@@ -358,6 +370,7 @@
     let soundEnabled = true;
     let bubbleTimer = null;
     let latestChatsSnapshotData = {};
+    let userHiddenChats = {};
     let userFavorites = { chats: {}, messages: {} };
     const chatMetaById = new Map();
     const watchedChatListeners = new Set();
@@ -408,10 +421,10 @@
     };
 
     document.getElementById("btn-ai-summarize").onclick = () => {
-      const textMsgs = latestMessagesList.filter(m => m.text).slice(-12);
-      const imgCount = latestMessagesList.filter(m => m.image).length;
+      const textMsgs = latestMessagesList.filter(m => m.text && !m.deletedForEveryone).slice(-12);
+      const imgCount = latestMessagesList.filter(m => m.image && !m.deletedForEveryone).length;
       if (textMsgs.length === 0 && imgCount === 0) {
-        document.getElementById("ai-output-box").textContent = "No messages in this thread yet to summarize.";
+        document.getElementById("ai-output-box").textContent = "No active messages in this thread to summarize.";
         return;
       }
       const bullets = textMsgs.map(m => `• ${m.senderName || "Member"}: ${m.text}`).join("\n");
@@ -420,7 +433,7 @@
 
     document.getElementById("btn-ai-draft").onclick = () => {
       const customNote = document.getElementById("ai-prompt-input").value.trim();
-      const lastMsg = [...latestMessagesList].reverse().find(m => m.text);
+      const lastMsg = [...latestMessagesList].reverse().find(m => m.text && !m.deletedForEveryone);
       let draft = "";
       if (customNote) {
         draft = `Got it — ${customNote}. Let me know if you need a screenshot or more details.`;
@@ -434,7 +447,7 @@
 
     document.getElementById("btn-ai-insert").onclick = () => {
       const outText = document.getElementById("ai-output-box").textContent.trim();
-      if (!outText || outText.startsWith("No messages") || outText.startsWith("Tap ")) return;
+      if (!outText || outText.startsWith("No active") || outText.startsWith("Tap ")) return;
       document.getElementById("message-input").value = outText;
       aiDrawer.classList.add("hidden");
       document.getElementById("message-input").focus();
@@ -504,11 +517,14 @@
     }
 
     function triggerMessageNotification(chatId, chatTitle, senderName, msg) {
+      if (userHiddenChats && userHiddenChats[chatId]) return;
       playNotificationSound();
 
-      const previewText = msg.image && !msg.text
-        ? "Sent a screenshot"
-        : (msg.image && msg.text ? "[Screenshot] " + msg.text : msg.text);
+      const previewText = msg.deletedForEveryone
+        ? "This message was deleted"
+        : (msg.image && !msg.text
+            ? "Sent a screenshot"
+            : (msg.image && msg.text ? "[Screenshot] " + msg.text : msg.text));
 
       if (String(activeChatId) !== String(chatId) || document.hidden) {
         const bubble = document.getElementById("in-app-bubble");
@@ -628,6 +644,7 @@
         console.error(e);
       }
 
+      listenToUserHiddenChats(user.uid);
       listenToFavorites(user.uid);
       listenToAllChats();
     }
@@ -651,11 +668,20 @@
         currentUser = null;
         activeChatId = null;
         latestChatsSnapshotData = {};
+        userHiddenChats = {};
         userFavorites = { chats: {}, messages: {} };
         document.getElementById("app-screen").classList.add("hidden");
         document.getElementById("login-screen").classList.remove("hidden");
       }
     });
+
+    // Per-User Hidden ("Delete for Me") Chats Sync
+    function listenToUserHiddenChats(uid) {
+      onValue(ref(db, "deletedChats/" + uid), (snap) => {
+        userHiddenChats = snap.val() || {};
+        renderChatList();
+      });
+    }
 
     // Favorites Sync & Actions
     function listenToFavorites(uid) {
@@ -682,7 +708,7 @@
     }
 
     async function toggleFavoriteMessage(chatId, msgId, msgObj) {
-      if (!currentUser || !chatId || !msgId) return;
+      if (!currentUser || !chatId || !msgId || msgObj.deletedForEveryone) return;
       const favKey = `${chatId}__${msgId}`;
       const favMsgRef = ref(db, `favorites/${currentUser.uid}/messages/${favKey}`);
       if (userFavorites.messages && userFavorites.messages[favKey]) {
@@ -720,12 +746,12 @@
 
     document.getElementById("btn-fav-chat").onclick = () => toggleFavoriteChat(activeChatId);
 
-    // Delete Chat Action
-    async function deleteChatById(targetChatId) {
+    // 1. Delete Chat ONLY FOR ME (does not delete messages or chat for others)
+    async function deleteChatForMe(targetChatId) {
       if (!currentUser || !targetChatId) return;
       const meta = chatMetaById.get(targetChatId);
       const label = (meta && meta.title) || "this chat";
-      if (!confirm(`Delete "${label}" and its messages?`)) return;
+      if (!confirm(`Delete "${label}" only for you? Other participants will still keep this chat.`)) return;
 
       const wasActive = String(activeChatId) === String(targetChatId);
       if (wasActive && activeMessagesRef) {
@@ -738,15 +764,62 @@
         document.getElementById("sidebar").classList.remove("hidden");
       }
 
-      await remove(ref(db, "messages/" + targetChatId));
-      await remove(ref(db, "chats/" + targetChatId));
+      await set(ref(db, `deletedChats/${currentUser.uid}/${targetChatId}`), {
+        deletedAt: Date.now()
+      });
+      await remove(ref(db, `chats/${targetChatId}/members/${currentUser.uid}`));
       await remove(ref(db, `favorites/${currentUser.uid}/chats/${targetChatId}`));
-      chatMetaById.delete(String(targetChatId));
       renderChatList();
     }
 
-    document.getElementById("btn-delete-chat").onclick = () => {
-      if (activeChatId) deleteChatById(activeChatId);
+    // 2. Delete Chat FOR EVERYONE (wipes messages & leaves a "deleted chat" trail for all users)
+    async function deleteChatForEveryone(targetChatId) {
+      if (!currentUser || !targetChatId) return;
+      const meta = chatMetaById.get(targetChatId);
+      const label = (meta && meta.title) || "this chat";
+      if (!confirm(`Delete "${label}" for EVERYONE? All messages will be cleared and a deleted trail will remain.`)) return;
+
+      await remove(ref(db, "messages/" + targetChatId));
+      await update(ref(db, "chats/" + targetChatId), {
+        deletedForEveryone: true,
+        deletedBy: currentDisplayName,
+        deletedAt: Date.now()
+      });
+      await push(ref(db, "messages/" + targetChatId), {
+        senderUid: currentUser.uid,
+        senderName: currentDisplayName,
+        text: `🚫 ${currentDisplayName} deleted this chat for everyone`,
+        image: null,
+        deletedForEveryone: true,
+        isSystemTrail: true,
+        timestamp: Date.now()
+      });
+      await remove(ref(db, `favorites/${currentUser.uid}/chats/${targetChatId}`));
+    }
+
+    // 3. Delete Individual Message FOR EVERYONE (leaves "🚫 This message was deleted" trail)
+    async function deleteMessageForEveryone(chatId, msgId) {
+      if (!currentUser || !chatId || !msgId) return;
+      if (!confirm("Delete this message for everyone?")) return;
+
+      const favKey = `${chatId}__${msgId}`;
+      await remove(ref(db, `favorites/${currentUser.uid}/messages/${favKey}`));
+
+      await update(ref(db, `messages/${chatId}/${msgId}`), {
+        text: "🚫 This message was deleted",
+        image: null,
+        deletedForEveryone: true,
+        deletedBy: currentDisplayName,
+        deletedAt: Date.now()
+      });
+    }
+
+    document.getElementById("btn-delete-me").onclick = () => {
+      if (activeChatId) deleteChatForMe(activeChatId);
+    };
+
+    document.getElementById("btn-delete-everyone").onclick = () => {
+      if (activeChatId) deleteChatForEveryone(activeChatId);
     };
 
     // Leave Group Action
@@ -952,6 +1025,9 @@
     }
 
     function getChatSubtitle(chat) {
+      if (chat.deletedForEveryone) {
+        return `Deleted by ${chat.deletedBy || "a member"}`;
+      }
       const memberNames = Object.values(chat.members || {});
       if (chat.type === "group") return memberNames.join(", ");
       return memberNames.length > 1 ? memberNames.join(" & ") : "Open " + MAIN_APP_LINK + " to join";
@@ -998,14 +1074,19 @@
       listEl.innerHTML = "";
 
       const allChats = Object.entries(latestChatsSnapshotData || {}).filter(
-        (entry) => entry[1] && entry[1].members
+        ([id, chat]) => chat && chat.members && !(userHiddenChats && userHiddenChats[id])
       );
 
       allChats.forEach(([id, chat]) => {
         const chatKey = String(id);
         const title = getChatTitle(chat, myUid);
         const fullSubtitle = getChatSubtitle(chat);
-        chatMetaById.set(chatKey, { title, subtitle: fullSubtitle, type: chat.type });
+        chatMetaById.set(chatKey, {
+          title,
+          subtitle: fullSubtitle,
+          type: chat.type,
+          deletedForEveryone: Boolean(chat.deletedForEveryone)
+        });
         watchChatForNotifications(chatKey, title);
       });
 
@@ -1032,7 +1113,9 @@
         const isSelected = activeChatId !== null && String(activeChatId) === chatKey;
         const memberNames = Object.values(chat.members || {});
         const title = getChatTitle(chat, myUid);
-        const subtitle = chat.type === "group" ? (memberNames.length + " members") : "Direct Chat";
+        const subtitle = chat.deletedForEveryone
+          ? "🚫 Deleted chat"
+          : (chat.type === "group" ? (memberNames.length + " members") : "Direct Chat");
         const fullSubtitle = getChatSubtitle(chat);
         const isFavChat = Boolean(userFavorites.chats && userFavorites.chats[chatKey]);
 
@@ -1058,7 +1141,11 @@
         const info = document.createElement("div");
         info.className = "min-w-0 flex-1";
         const pTitle = document.createElement("p");
-        pTitle.className = "text-sm font-semibold truncate " + (isSelected ? "text-white" : "text-theme-primary");
+        pTitle.className = "text-sm font-semibold truncate " + (
+          isSelected
+            ? "text-white"
+            : (chat.deletedForEveryone ? "text-theme-secondary italic" : "text-theme-primary")
+        );
         pTitle.textContent = (isFavChat ? "★ " : "") + title;
         const pSub = document.createElement("p");
         pSub.className = "text-xs truncate " + (isSelected ? "text-white/80" : "text-theme-secondary");
@@ -1072,14 +1159,14 @@
 
         const delBtn = document.createElement("button");
         delBtn.type = "button";
-        delBtn.title = "Delete Chat";
+        delBtn.title = "Delete Chat for Me";
         delBtn.className = "px-2 py-1 rounded-lg text-xs transition flex-shrink-0 " + (
           isSelected ? "text-white/80 hover:text-white hover:bg-white/15" : "text-theme-secondary hover:text-rose-400 hover:bg-rose-500/10"
         );
         delBtn.innerHTML = "×";
         delBtn.onclick = (e) => {
           e.stopPropagation();
-          deleteChatById(chatKey);
+          deleteChatForMe(chatKey);
         };
 
         row.appendChild(openBtn);
@@ -1096,8 +1183,26 @@
           const meta = chatMetaById.get(activeChatId);
           document.getElementById("chat-title").textContent = meta.title;
           document.getElementById("chat-subtitle").textContent = meta.subtitle;
+          updateComposerLockState(meta.deletedForEveryone);
         }
       });
+    }
+
+    function updateComposerLockState(isChatDeletedForEveryone) {
+      const msgInput = document.getElementById("message-input");
+      const sendBtn = document.getElementById("btn-send-msg");
+      const attachBtn = document.getElementById("btn-attach");
+      if (isChatDeletedForEveryone) {
+        msgInput.disabled = true;
+        sendBtn.disabled = true;
+        attachBtn.disabled = true;
+        msgInput.placeholder = "This chat was deleted for everyone.";
+      } else {
+        msgInput.disabled = false;
+        sendBtn.disabled = false;
+        attachBtn.disabled = false;
+        msgInput.placeholder = "iMessage or paste screenshot (Ctrl+V)...";
+      }
     }
 
     function renderMessages(msgsObj) {
@@ -1106,6 +1211,8 @@
       latestMessagesList = Object.values(msgsObj || {});
       Object.entries(msgsObj || {}).forEach(([msgId, m]) => {
         const isMe = m.senderUid === currentUser.uid;
+        const isDeleted = Boolean(m.deletedForEveryone);
+
         const wrap = document.createElement("div");
         wrap.className = "flex flex-col " + (isMe ? "items-end" : "items-start");
 
@@ -1116,37 +1223,56 @@
         meta.className = "text-[10px] text-theme-secondary";
         const timeStr = new Date(m.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
         meta.textContent = (isMe ? "You" : (m.senderName || "Member")) + " • " + timeStr;
-
-        const favKey = `${activeChatId}__${msgId}`;
-        const isMsgFav = Boolean(userFavorites.messages && userFavorites.messages[favKey]);
-        const starBtn = document.createElement("button");
-        starBtn.type = "button";
-        starBtn.title = isMsgFav ? "Remove from Favorites" : "Save to Favorites";
-        starBtn.className = "text-xs transition " + (isMsgFav ? "text-amber-400" : "text-theme-secondary hover:text-amber-400");
-        starBtn.innerHTML = isMsgFav ? "★" : "☆";
-        starBtn.onclick = () => toggleFavoriteMessage(activeChatId, msgId, m);
-
         metaRow.appendChild(meta);
-        metaRow.appendChild(starBtn);
+
+        if (!isDeleted) {
+          const favKey = `${activeChatId}__${msgId}`;
+          const isMsgFav = Boolean(userFavorites.messages && userFavorites.messages[favKey]);
+          const starBtn = document.createElement("button");
+          starBtn.type = "button";
+          starBtn.title = isMsgFav ? "Remove from Favorites" : "Save to Favorites";
+          starBtn.className = "text-xs transition " + (isMsgFav ? "text-amber-400" : "text-theme-secondary hover:text-amber-400");
+          starBtn.innerHTML = isMsgFav ? "★" : "☆";
+          starBtn.onclick = () => toggleFavoriteMessage(activeChatId, msgId, m);
+          metaRow.appendChild(starBtn);
+
+          if (isMe) {
+            const delMsgBtn = document.createElement("button");
+            delMsgBtn.type = "button";
+            delMsgBtn.title = "Delete message for everyone";
+            delMsgBtn.className = "text-[10px] text-theme-secondary hover:text-rose-400 transition px-1";
+            delMsgBtn.textContent = "Delete for Everyone";
+            delMsgBtn.onclick = () => deleteMessageForEveryone(activeChatId, msgId);
+            metaRow.appendChild(delMsgBtn);
+          }
+        }
 
         const bubble = document.createElement("div");
-        bubble.className = "max-w-[80%] sm:max-w-md rounded-[20px] px-3.5 py-2 text-sm " + (isMe ? "imessage-bubble-sent rounded-br-md" : "imessage-bubble-recv rounded-bl-md");
+        if (isDeleted) {
+          bubble.className = "max-w-[80%] sm:max-w-md rounded-[20px] px-3.5 py-2 text-xs imessage-bubble-deleted " + (isMe ? "rounded-br-md" : "rounded-bl-md");
+          const delTxt = document.createElement("p");
+          delTxt.className = "whitespace-pre-wrap break-words leading-snug";
+          delTxt.textContent = m.text || "🚫 This message was deleted";
+          bubble.appendChild(delTxt);
+        } else {
+          bubble.className = "max-w-[80%] sm:max-w-md rounded-[20px] px-3.5 py-2 text-sm " + (isMe ? "imessage-bubble-sent rounded-br-md" : "imessage-bubble-recv rounded-bl-md");
 
-        if (m.image) {
-          const imgEl = document.createElement("img");
-          imgEl.src = m.image;
-          imgEl.className = "rounded-xl max-h-72 w-auto mb-1.5 cursor-zoom-in border border-white/15";
-          imgEl.onclick = () => {
-            document.getElementById("lightbox-img").src = m.image;
-            document.getElementById("lightbox").classList.remove("hidden");
-          };
-          bubble.appendChild(imgEl);
-        }
-        if (m.text) {
-          const txtEl = document.createElement("p");
-          txtEl.className = "whitespace-pre-wrap break-words leading-snug";
-          txtEl.textContent = m.text;
-          bubble.appendChild(txtEl);
+          if (m.image) {
+            const imgEl = document.createElement("img");
+            imgEl.src = m.image;
+            imgEl.className = "rounded-xl max-h-72 w-auto mb-1.5 cursor-zoom-in border border-white/15";
+            imgEl.onclick = () => {
+              document.getElementById("lightbox-img").src = m.image;
+              document.getElementById("lightbox").classList.remove("hidden");
+            };
+            bubble.appendChild(imgEl);
+          }
+          if (m.text) {
+            const txtEl = document.createElement("p");
+            txtEl.className = "whitespace-pre-wrap break-words leading-snug";
+            txtEl.textContent = m.text;
+            bubble.appendChild(txtEl);
+          }
         }
 
         wrap.appendChild(metaRow);
@@ -1158,13 +1284,17 @@
 
     async function openChat(chatId, title, subtitle) {
       activeChatId = String(chatId);
-      if (currentUser && currentDisplayName) {
+      const meta = chatMetaById.get(activeChatId);
+      const isDeletedForAll = Boolean(meta && meta.deletedForEveryone);
+
+      if (currentUser && currentDisplayName && !isDeletedForAll) {
         try {
           await set(ref(db, `chats/${activeChatId}/members/${currentUser.uid}`), currentDisplayName);
         } catch (e) {}
       }
       renderChatList();
       updateActiveChatHeaderButtons();
+      updateComposerLockState(isDeletedForAll);
 
       document.getElementById("in-app-bubble").classList.add("hidden");
       document.getElementById("favorites-vault").classList.add("hidden");
@@ -1227,6 +1357,8 @@
 
     document.addEventListener("paste", (e) => {
       if (!activeChatId) return;
+      const meta = chatMetaById.get(activeChatId);
+      if (meta && meta.deletedForEveryone) return;
       const items = (e.clipboardData && e.clipboardData.items) || [];
       for (const item of items) {
         if (item.kind === "file") {
@@ -1247,6 +1379,8 @@
     document.addEventListener("drop", (e) => {
       e.preventDefault();
       if (!activeChatId) return;
+      const meta = chatMetaById.get(activeChatId);
+      if (meta && meta.deletedForEveryone) return;
       if (e.dataTransfer.files[0]) processImageFile(e.dataTransfer.files[0]);
     });
 
@@ -1260,6 +1394,9 @@
     document.getElementById("message-form").onsubmit = async (e) => {
       e.preventDefault();
       if (!activeChatId || !currentUser) return;
+      const meta = chatMetaById.get(activeChatId);
+      if (meta && meta.deletedForEveryone) return;
+
       const input = document.getElementById("message-input");
       const text = input.value.trim();
       if (!text && !pendingImageBase64) return;
