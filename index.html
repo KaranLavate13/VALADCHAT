@@ -92,6 +92,11 @@
     .text-theme-secondary { color: var(--text-secondary); }
     .border-theme { border-color: var(--glass-border); }
 
+    select option {
+      background: #111827;
+      color: #f5f7fa;
+    }
+
     ::-webkit-scrollbar { width: 5px; height: 5px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: rgba(128, 128, 128, 0.28); border-radius: 9999px; }
@@ -229,6 +234,9 @@
             </div>
           </div>
           <div class="flex items-center gap-1.5 flex-wrap flex-shrink-0 relative">
+            <select id="select-delete-chat" title="Select which chat to delete" class="px-2.5 py-1.5 rounded-xl imessage-glass text-xs font-medium text-theme-primary focus:outline-none cursor-pointer max-w-[150px]">
+              <option value="">Select Chat...</option>
+            </select>
             <button id="btn-fav-chat" type="button" title="Save / Unsave Chat to Favorites" class="px-2.5 py-1.5 rounded-xl imessage-glass hover:bg-white/10 text-xs font-medium text-amber-400 transition">
               ☆ Fav
             </button>
@@ -239,10 +247,10 @@
             <button id="btn-leave-group" type="button" title="Leave this group" class="hidden px-2.5 py-1.5 rounded-xl imessage-glass hover:bg-amber-500/20 text-xs font-medium text-amber-300 transition">
               Leave Group
             </button>
-            <button id="btn-delete-me" type="button" title="Delete chat only for you" class="px-2.5 py-1.5 rounded-xl imessage-glass hover:bg-white/10 text-xs font-medium text-theme-secondary hover:text-theme-primary transition">
+            <button id="btn-delete-me" type="button" title="Delete selected chat only for you" class="px-2.5 py-1.5 rounded-xl imessage-glass hover:bg-white/10 text-xs font-medium text-theme-secondary hover:text-theme-primary transition">
               Delete for Me
             </button>
-            <button id="btn-delete-everyone" type="button" title="Delete chat for everyone and leave a deleted trail" class="px-2.5 py-1.5 rounded-xl imessage-glass hover:bg-rose-500/20 text-xs font-medium text-rose-400 transition">
+            <button id="btn-delete-everyone" type="button" title="Delete selected chat for everyone and leave a deleted trail" class="px-2.5 py-1.5 rounded-xl imessage-glass hover:bg-rose-500/20 text-xs font-medium text-rose-400 transition">
               Delete for Everyone
             </button>
 
@@ -297,6 +305,27 @@
         </form>
       </div>
     </main>
+  </div>
+
+  <!-- MODAL: SELECT CHAT DELETE OPTIONS -->
+  <div id="modal-chat-delete" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" style="backdrop-filter: blur(5%);">
+    <div class="imessage-panel rounded-[24px] p-6 max-w-sm w-full space-y-4">
+      <div>
+        <h3 class="text-base font-semibold text-theme-primary">Delete Chat</h3>
+        <p id="delete-modal-chat-label" class="text-xs text-theme-secondary mt-1 truncate"></p>
+      </div>
+      <div class="flex flex-col gap-2">
+        <button type="button" id="btn-modal-delete-me" class="w-full py-2.5 px-4 rounded-xl imessage-glass hover:bg-white/10 text-xs font-semibold text-theme-primary text-left">
+          Delete for Me (removes only for your account)
+        </button>
+        <button type="button" id="btn-modal-delete-everyone" class="w-full py-2.5 px-4 rounded-xl imessage-glass hover:bg-rose-500/20 text-xs font-semibold text-rose-400 text-left">
+          Delete for Everyone (leaves a deleted trail for all)
+        </button>
+      </div>
+      <div class="flex justify-end pt-1">
+        <button type="button" id="btn-cancel-delete-modal" class="px-4 py-2 rounded-xl text-xs text-theme-secondary imessage-glass">Cancel</button>
+      </div>
+    </div>
   </div>
 
   <!-- MODAL: NEW DIRECT CHAT -->
@@ -363,6 +392,7 @@
     let currentUser = null;
     let currentDisplayName = localStorage.getItem("valadchat_permanent_name") || "";
     let activeChatId = null;
+    let targetDeleteChatId = null;
     let activeTab = "dm";
     let activeMessagesRef = null;
     let latestMessagesList = [];
@@ -390,7 +420,6 @@
 
     document.getElementById("btn-copy-app-link").onclick = copyMainAppLink;
 
-    // Edit Permanent Display Name on demand
     document.getElementById("btn-edit-name").onclick = async () => {
       if (!currentUser) return;
       const updated = prompt("Update your display name:", currentDisplayName);
@@ -411,7 +440,6 @@
       } catch (e) {}
     };
 
-    // Floating AI Helper Controls
     const aiDrawer = document.getElementById("ai-drawer");
     document.getElementById("btn-floating-ai").onclick = () => {
       aiDrawer.classList.toggle("hidden");
@@ -453,7 +481,6 @@
       document.getElementById("message-input").focus();
     };
 
-    // Dark / Light Theme Toggle
     function applyTheme(mode) {
       const html = document.documentElement;
       if (mode === "light") {
@@ -475,7 +502,6 @@
       applyTheme(next);
     };
 
-    // Notification Sound
     function playNotificationSound() {
       if (!soundEnabled) return;
       try {
@@ -579,7 +605,6 @@
       document.getElementById("sound-icon").innerHTML = soundEnabled ? "🔔" : "🔇";
     };
 
-    // Permanent Display Name Setup
     document.getElementById("guest-entry-form").onsubmit = async (e) => {
       e.preventDefault();
       const chosenName = document.getElementById("guest-name-input").value.trim();
@@ -675,7 +700,6 @@
       }
     });
 
-    // Per-User Hidden ("Delete for Me") Chats Sync
     function listenToUserHiddenChats(uid) {
       onValue(ref(db, "deletedChats/" + uid), (snap) => {
         userHiddenChats = snap.val() || {};
@@ -683,7 +707,6 @@
       });
     }
 
-    // Favorites Sync & Actions
     function listenToFavorites(uid) {
       onValue(ref(db, "favorites/" + uid), (snap) => {
         const val = snap.val() || {};
@@ -746,7 +769,61 @@
 
     document.getElementById("btn-fav-chat").onclick = () => toggleFavoriteChat(activeChatId);
 
-    // 1. Delete Chat ONLY FOR ME (does not delete messages or chat for others)
+    // Chat Selector Helpers for Delete for Me / Delete for Everyone
+    function syncDeleteChatSelectOptions(visibleChats) {
+      const sel = document.getElementById("select-delete-chat");
+      if (!sel) return;
+      const previousSelection = sel.value;
+      sel.innerHTML = `<option value="">Select Chat...</option>`;
+
+      visibleChats.forEach(([id, chat]) => {
+        const key = String(id);
+        const opt = document.createElement("option");
+        opt.value = key;
+        const meta = chatMetaById.get(key);
+        opt.textContent = (meta && meta.title) || chat.name || key;
+        sel.appendChild(opt);
+      });
+
+      if (previousSelection && chatMetaById.has(previousSelection) && !(userHiddenChats && userHiddenChats[previousSelection])) {
+        sel.value = previousSelection;
+      } else if (activeChatId) {
+        sel.value = String(activeChatId);
+      }
+    }
+
+    function getSelectedDeleteTargetId() {
+      const sel = document.getElementById("select-delete-chat");
+      if (sel && sel.value) return sel.value;
+      return activeChatId;
+    }
+
+    function openDeleteModalForChat(chatId) {
+      targetDeleteChatId = String(chatId);
+      const meta = chatMetaById.get(targetDeleteChatId);
+      document.getElementById("delete-modal-chat-label").textContent =
+        "Selected chat: " + ((meta && meta.title) || targetDeleteChatId);
+      document.getElementById("modal-chat-delete").classList.remove("hidden");
+    }
+
+    document.getElementById("btn-cancel-delete-modal").onclick = () => {
+      targetDeleteChatId = null;
+      document.getElementById("modal-chat-delete").classList.add("hidden");
+    };
+
+    document.getElementById("btn-modal-delete-me").onclick = async () => {
+      const id = targetDeleteChatId;
+      document.getElementById("modal-chat-delete").classList.add("hidden");
+      if (id) await deleteChatForMe(id);
+    };
+
+    document.getElementById("btn-modal-delete-everyone").onclick = async () => {
+      const id = targetDeleteChatId;
+      document.getElementById("modal-chat-delete").classList.add("hidden");
+      if (id) await deleteChatForEveryone(id);
+    };
+
+    // 1. Delete Chat ONLY FOR ME
     async function deleteChatForMe(targetChatId) {
       if (!currentUser || !targetChatId) return;
       const meta = chatMetaById.get(targetChatId);
@@ -772,7 +849,7 @@
       renderChatList();
     }
 
-    // 2. Delete Chat FOR EVERYONE (wipes messages & leaves a "deleted chat" trail for all users)
+    // 2. Delete Chat FOR EVERYONE
     async function deleteChatForEveryone(targetChatId) {
       if (!currentUser || !targetChatId) return;
       const meta = chatMetaById.get(targetChatId);
@@ -797,7 +874,7 @@
       await remove(ref(db, `favorites/${currentUser.uid}/chats/${targetChatId}`));
     }
 
-    // 3. Delete Individual Message FOR EVERYONE (leaves "🚫 This message was deleted" trail)
+    // 3. Delete Individual Message FOR EVERYONE
     async function deleteMessageForEveryone(chatId, msgId) {
       if (!currentUser || !chatId || !msgId) return;
       if (!confirm("Delete this message for everyone?")) return;
@@ -815,14 +892,17 @@
     }
 
     document.getElementById("btn-delete-me").onclick = () => {
-      if (activeChatId) deleteChatForMe(activeChatId);
+      const targetId = getSelectedDeleteTargetId();
+      if (!targetId) return alert("Select a chat first.");
+      deleteChatForMe(targetId);
     };
 
     document.getElementById("btn-delete-everyone").onclick = () => {
-      if (activeChatId) deleteChatForEveryone(activeChatId);
+      const targetId = getSelectedDeleteTargetId();
+      if (!targetId) return alert("Select a chat first.");
+      deleteChatForEveryone(targetId);
     };
 
-    // Leave Group Action
     document.getElementById("btn-leave-group").onclick = async () => {
       if (!currentUser || !activeChatId) return;
       const meta = chatMetaById.get(activeChatId);
@@ -845,7 +925,6 @@
       renderChatList();
     };
 
-    // Sidebar Tabs Switching
     function setActiveTab(tab) {
       activeTab = tab;
       const tabs = {
@@ -1090,8 +1169,13 @@
         watchChatForNotifications(chatKey, title);
       });
 
-      const filteredChats = allChats.filter(([id, chat]) => {
+      const accessibleChats = allChats.filter(([_, chat]) => {
         if (chat.type === "group" && (!chat.members || !chat.members[myUid])) return false;
+        return true;
+      });
+      syncDeleteChatSelectOptions(accessibleChats);
+
+      const filteredChats = accessibleChats.filter(([id, chat]) => {
         if (activeTab === "dm") return chat.type !== "group";
         if (activeTab === "group") return chat.type === "group";
         if (activeTab === "fav") return Boolean(userFavorites.chats && userFavorites.chats[id]);
@@ -1120,7 +1204,7 @@
         const isFavChat = Boolean(userFavorites.chats && userFavorites.chats[chatKey]);
 
         const row = document.createElement("div");
-        row.className = "w-full p-2.5 rounded-2xl transition flex items-center gap-2.5 " + (
+        row.className = "w-full p-2.5 rounded-2xl transition flex items-center gap-2 " + (
           isSelected
             ? "imessage-bubble-sent text-white"
             : "hover:bg-white/10"
@@ -1157,20 +1241,20 @@
         openBtn.appendChild(info);
         openBtn.onclick = () => openChat(chatKey, title, fullSubtitle);
 
-        const delBtn = document.createElement("button");
-        delBtn.type = "button";
-        delBtn.title = "Delete Chat for Me";
-        delBtn.className = "px-2 py-1 rounded-lg text-xs transition flex-shrink-0 " + (
-          isSelected ? "text-white/80 hover:text-white hover:bg-white/15" : "text-theme-secondary hover:text-rose-400 hover:bg-rose-500/10"
+        const optBtn = document.createElement("button");
+        optBtn.type = "button";
+        optBtn.title = "Choose Delete for Me or Delete for Everyone";
+        optBtn.className = "px-2 py-1 rounded-lg text-xs font-bold transition flex-shrink-0 " + (
+          isSelected ? "text-white/90 hover:text-white hover:bg-white/15" : "text-theme-secondary hover:text-rose-400 hover:bg-rose-500/10"
         );
-        delBtn.innerHTML = "×";
-        delBtn.onclick = (e) => {
+        optBtn.innerHTML = "⋮";
+        optBtn.onclick = (e) => {
           e.stopPropagation();
-          deleteChatForMe(chatKey);
+          openDeleteModalForChat(chatKey);
         };
 
         row.appendChild(openBtn);
-        row.appendChild(delBtn);
+        row.appendChild(optBtn);
         listEl.appendChild(row);
       });
     }
@@ -1284,6 +1368,9 @@
 
     async function openChat(chatId, title, subtitle) {
       activeChatId = String(chatId);
+      const sel = document.getElementById("select-delete-chat");
+      if (sel) sel.value = activeChatId;
+
       const meta = chatMetaById.get(activeChatId);
       const isDeletedForAll = Boolean(meta && meta.deletedForEveryone);
 
