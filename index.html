@@ -108,7 +108,7 @@
     </div>
   </div>
 
-  <!-- LINK ACCESS / DISPLAY NAME SCREEN (NO GMAIL NEEDED) -->
+  <!-- ONE-TIME DISPLAY NAME SETUP SCREEN -->
   <div id="login-screen" class="imessage-panel p-10 rounded-[28px] max-w-md w-full mx-4 text-center">
     <div class="w-16 h-16 mx-auto mb-5 rounded-[20px] imessage-bubble-sent flex items-center justify-center">
       <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
@@ -116,18 +116,18 @@
       </svg>
     </div>
     <h1 class="text-2xl font-semibold tracking-tight text-theme-primary mb-1.5">VALADCHAT</h1>
-    <p id="invite-banner" class="text-xs text-theme-secondary mb-6">Anyone with the link can join. Pick a display name to enter.</p>
+    <p class="text-xs text-theme-secondary mb-6">Create your permanent display name once to enter chats and groups.</p>
     <form id="guest-entry-form" class="space-y-3 text-left">
       <input
         id="guest-name-input"
         type="text"
         required
         maxlength="32"
-        placeholder="Enter your display name..."
+        placeholder="Choose your permanent display name..."
         class="w-full imessage-glass rounded-2xl px-4 py-3.5 text-sm text-theme-primary placeholder-gray-400 focus:outline-none focus:border-sky-400/60"
       />
       <button id="btn-login" type="submit" class="w-full py-3.5 px-5 rounded-2xl imessage-send-btn text-white font-semibold text-sm flex items-center justify-center gap-2 transition cursor-pointer shadow-lg">
-        <span>Enter Chat</span>
+        <span>Save Name & Enter</span>
         <span>→</span>
       </button>
     </form>
@@ -145,11 +145,11 @@
           <div id="user-avatar" class="w-9 h-9 rounded-full imessage-bubble-sent flex items-center justify-center text-white font-semibold text-sm flex-shrink-0">U</div>
           <div class="min-w-0">
             <p id="user-name" class="text-sm font-semibold text-theme-primary truncate"></p>
-            <p id="user-handle" class="text-[11px] text-theme-secondary truncate">Link Member</p>
+            <p id="user-handle" class="text-[11px] text-theme-secondary truncate">Saved Profile</p>
           </div>
         </div>
         <div class="flex items-center gap-1">
-          <button id="btn-copy-app-link" type="button" title="Copy App Share Link" class="p-2 rounded-xl imessage-glass hover:bg-white/10 text-sky-400 transition text-xs">
+          <button id="btn-copy-app-link" type="button" title="Copy Main App Link" class="p-2 rounded-xl imessage-glass hover:bg-white/10 text-sky-400 transition text-xs">
             🔗
           </button>
           <button id="btn-theme-toggle" type="button" title="Toggle Dark / Light Mode" class="p-2 rounded-xl imessage-glass hover:bg-white/10 text-theme-primary transition text-xs">
@@ -157,11 +157,6 @@
           </button>
           <button id="btn-sound-toggle" type="button" title="Toggle Notification Sound" class="p-2 rounded-xl imessage-glass hover:bg-white/10 text-sky-400 transition text-xs">
             <span id="sound-icon">🔔</span>
-          </button>
-          <button id="btn-logout" type="button" title="Change Name / Leave Session" class="p-2 rounded-xl imessage-glass hover:bg-white/10 text-theme-secondary hover:text-theme-primary transition">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-            </svg>
           </button>
         </div>
       </div>
@@ -195,7 +190,7 @@
       <div id="empty-chat" class="flex-1 flex flex-col items-center justify-center text-center p-6">
         <div class="w-12 h-12 rounded-2xl imessage-glass flex items-center justify-center mb-3 text-sky-400 text-lg font-semibold">iM</div>
         <h2 class="text-base font-semibold text-theme-primary">Messages</h2>
-        <p class="text-xs text-theme-secondary mt-1 max-w-xs">Start a direct chat or group, copy its share link for anyone to join, and paste screenshots with Ctrl+V.</p>
+        <p class="text-xs text-theme-secondary mt-1 max-w-xs">Start a direct chat or group, share the main link with anyone, and paste screenshots with Ctrl+V.</p>
       </div>
 
       <div id="favorites-vault" class="hidden flex-1 flex flex-col h-full">
@@ -222,13 +217,9 @@
             </div>
           </div>
           <div class="flex items-center gap-1.5 flex-shrink-0 relative">
-            <button id="btn-share-chat" type="button" title="Copy Invite Link for This Chat" class="px-2.5 py-1.5 rounded-xl imessage-glass hover:bg-white/10 text-xs font-medium text-sky-400 transition">
-              Share Link
-            </button>
             <button id="btn-fav-chat" type="button" title="Save / Unsave Chat to Favorites" class="px-2.5 py-1.5 rounded-xl imessage-glass hover:bg-white/10 text-xs font-medium text-amber-400 transition">
               ☆ Fav
             </button>
-            <!-- FLOATING AI BUTTON BESIDE FAV -->
             <button id="btn-floating-ai" type="button" title="AI Assistant" class="px-3 py-1.5 rounded-xl imessage-bubble-sent text-white text-xs font-semibold shadow-md hover:opacity-95 transition flex items-center gap-1">
               <span>✨</span>
               <span>AI</span>
@@ -237,7 +228,6 @@
               Leave Group
             </button>
 
-            <!-- FLOATING AI DRAWER POPOVER -->
             <div id="ai-drawer" class="hidden fixed top-20 right-4 sm:right-8 z-50 w-80 sm:w-96 imessage-panel rounded-3xl p-4 space-y-3">
               <div class="flex items-center justify-between border-b border-theme pb-2">
                 <div class="flex items-center gap-2">
@@ -295,11 +285,11 @@
   <div id="modal-dm" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" style="backdrop-filter: blur(5%);">
     <div class="imessage-panel rounded-[24px] p-6 max-w-sm w-full space-y-4">
       <h3 class="text-base font-semibold text-theme-primary">New Direct Chat</h3>
-      <p class="text-xs text-theme-secondary">Give this 1-on-1 room a label, then share its invite link with the person you want to chat with.</p>
-      <input id="dm-name-input" type="text" placeholder="Person's name or chat label..." class="w-full imessage-glass rounded-xl px-3.5 py-2.5 text-sm text-theme-primary placeholder-gray-400 focus:outline-none" />
+      <p class="text-xs text-theme-secondary">Start a direct chat room and share the main app link so they can join.</p>
+      <input id="dm-name-input" type="text" placeholder="Chat title or person's name..." class="w-full imessage-glass rounded-xl px-3.5 py-2.5 text-sm text-theme-primary placeholder-gray-400 focus:outline-none" />
       <div class="flex justify-end gap-2 pt-1">
         <button type="button" id="btn-cancel-dm" class="px-4 py-2 rounded-xl text-xs text-theme-secondary imessage-glass">Cancel</button>
-        <button type="button" id="btn-create-dm" class="px-4 py-2 rounded-xl text-xs font-semibold imessage-send-btn text-white">Create & Copy Link</button>
+        <button type="button" id="btn-create-dm" class="px-4 py-2 rounded-xl text-xs font-semibold imessage-send-btn text-white">Start Chat</button>
       </div>
     </div>
   </div>
@@ -308,11 +298,11 @@
   <div id="modal-group" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" style="backdrop-filter: blur(5%);">
     <div class="imessage-panel rounded-[24px] p-6 max-w-md w-full space-y-4">
       <h3 class="text-base font-semibold text-theme-primary">New Group</h3>
-      <p class="text-xs text-theme-secondary">Create a group and share its invite link so anyone can join.</p>
+      <p class="text-xs text-theme-secondary">Create a group and share the main app link so anyone can join.</p>
       <input id="group-name-input" type="text" placeholder="Group Name" class="w-full imessage-glass rounded-xl px-3.5 py-2.5 text-sm text-theme-primary placeholder-gray-400 focus:outline-none" />
       <div class="flex justify-end gap-2 pt-1">
         <button type="button" id="btn-cancel-group" class="px-4 py-2 rounded-xl text-xs text-theme-secondary imessage-glass">Cancel</button>
-        <button type="button" id="btn-create-group" class="px-4 py-2 rounded-xl text-xs font-semibold imessage-send-btn text-white">Create & Copy Link</button>
+        <button type="button" id="btn-create-group" class="px-4 py-2 rounded-xl text-xs font-semibold imessage-send-btn text-white">Create Group</button>
       </div>
     </div>
   </div>
@@ -324,9 +314,10 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-    import { getAuth, signInAnonymously, updateProfile, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+    import { getAuth, signInAnonymously, updateProfile, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
     import { getDatabase, ref, set, push, remove, onValue, off, get } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
 
+    const MAIN_APP_LINK = "https://karanlavate13.github.io/VALADCHAT/";
     const errEl = document.getElementById("login-error");
     const statusEl = document.getElementById("login-status");
 
@@ -352,7 +343,7 @@
     const db = getDatabase(app);
 
     let currentUser = null;
-    let currentDisplayName = localStorage.getItem("valadchat_guest_name") || "";
+    let currentDisplayName = localStorage.getItem("valadchat_permanent_name") || "";
     let activeChatId = null;
     let activeTab = "dm";
     let activeMessagesRef = null;
@@ -365,29 +356,20 @@
     const chatMetaById = new Map();
     const watchedChatListeners = new Set();
 
-    const urlParams = new URLSearchParams(window.location.search);
-    let pendingInviteChatId = urlParams.get("chat") || "";
-
-    if (pendingInviteChatId) {
-      document.getElementById("invite-banner").textContent = "You were invited to a chat! Enter a display name to jump right in.";
-    }
     if (currentDisplayName) {
       document.getElementById("guest-name-input").value = currentDisplayName;
     }
 
-    function buildShareUrl(chatId) {
-      const base = window.location.origin + window.location.pathname;
-      return chatId ? `${base}?chat=${encodeURIComponent(chatId)}` : base;
-    }
-
-    async function copyToClipboard(text, label) {
+    async function copyMainAppLink() {
       try {
-        await navigator.clipboard.writeText(text);
-        alert(`${label} copied to clipboard:\n${text}`);
+        await navigator.clipboard.writeText(MAIN_APP_LINK);
+        alert("Main link copied:\n" + MAIN_APP_LINK);
       } catch (e) {
-        prompt(`Copy this ${label}:`, text);
+        prompt("Copy this link:", MAIN_APP_LINK);
       }
     }
+
+    document.getElementById("btn-copy-app-link").onclick = copyMainAppLink;
 
     // Floating AI Helper Controls
     const aiDrawer = document.getElementById("ai-drawer");
@@ -406,8 +388,7 @@
         return;
       }
       const bullets = textMsgs.map(m => `• ${m.senderName || "Member"}: ${m.text}`).join("\n");
-      const summary = `Recent activity (${textMsgs.length} text msg(s), ${imgCount} screenshot(s)):\n${bullets}`;
-      document.getElementById("ai-output-box").textContent = summary;
+      document.getElementById("ai-output-box").textContent = `Recent activity (${textMsgs.length} text msg(s), ${imgCount} screenshot(s)):\n${bullets}`;
     };
 
     document.getElementById("btn-ai-draft").onclick = () => {
@@ -555,27 +536,18 @@
       document.getElementById("sound-icon").innerHTML = soundEnabled ? "🔔" : "🔇";
     };
 
-    document.getElementById("btn-copy-app-link").onclick = () => {
-      copyToClipboard(buildShareUrl(""), "App share link");
-    };
-
-    document.getElementById("btn-share-chat").onclick = () => {
-      if (!activeChatId) return;
-      copyToClipboard(buildShareUrl(activeChatId), "Chat invite link");
-    };
-
-    // Guest / Link Entry Form (Anonymous Auth)
+    // Permanent Display Name Setup
     document.getElementById("guest-entry-form").onsubmit = async (e) => {
       e.preventDefault();
       const chosenName = document.getElementById("guest-name-input").value.trim();
       if (!chosenName) return;
 
       errEl.classList.add("hidden");
-      statusEl.textContent = "Joining VALADCHAT...";
+      statusEl.textContent = "Saving your display name...";
       statusEl.classList.remove("hidden");
 
       currentDisplayName = chosenName;
-      localStorage.setItem("valadchat_guest_name", chosenName);
+      localStorage.setItem("valadchat_permanent_name", chosenName);
 
       try {
         if (auth.currentUser) {
@@ -589,61 +561,41 @@
         if (err.code === "auth/operation-not-allowed") {
           showError("Enable 'Anonymous' sign-in in Firebase Console > Authentication > Sign-in method.");
         } else {
-          showError("Entry failed (" + (err.code || "error") + "): " + err.message);
+          showError("Setup failed (" + (err.code || "error") + "): " + err.message);
         }
       }
     };
-
-    document.getElementById("btn-logout").onclick = async () => {
-      localStorage.removeItem("valadchat_guest_name");
-      currentDisplayName = "";
-      document.getElementById("guest-name-input").value = "";
-      await signOut(auth);
-    };
-
-    async function joinChatByIdIfInvited(uid, displayName) {
-      if (!pendingInviteChatId) return;
-      const targetId = pendingInviteChatId;
-      pendingInviteChatId = "";
-
-      window.history.replaceState({}, document.title, window.location.pathname);
-
-      try {
-        const chatSnap = await get(ref(db, "chats/" + targetId));
-        if (!chatSnap.exists()) {
-          alert("This invite link is invalid or the group no longer exists.");
-          return;
-        }
-        const chat = chatSnap.val();
-        await set(ref(db, `chats/${targetId}/members/${uid}`), displayName);
-
-        const title = getChatTitle(chat, uid);
-        const subtitle = getChatSubtitle(chat);
-        setActiveTab(chat.type === "group" ? "group" : "dm");
-        openChat(targetId, title, subtitle);
-      } catch (err) {
-        console.error("Invite join error:", err);
-      }
-    }
 
     async function enterAppWithUser(user, displayName) {
       currentUser = user;
-      const nameToUse = displayName || user.displayName || localStorage.getItem("valadchat_guest_name") || ("Guest-" + user.uid.slice(0, 4));
-      currentDisplayName = nameToUse;
+      let permanentName = displayName || localStorage.getItem("valadchat_permanent_name") || user.displayName;
+
+      // Also check if a permanent profile name was already saved in Firebase for this UID
+      try {
+        const userSnap = await get(ref(db, "users/" + user.uid));
+        if (userSnap.exists() && userSnap.val().name) {
+          permanentName = userSnap.val().name;
+          localStorage.setItem("valadchat_permanent_name", permanentName);
+        }
+      } catch (e) {}
+
+      if (!permanentName) return;
+      currentDisplayName = permanentName;
 
       statusEl.classList.add("hidden");
       document.getElementById("login-screen").classList.add("hidden");
       document.getElementById("app-screen").classList.remove("hidden");
-      document.getElementById("user-name").textContent = nameToUse;
-      document.getElementById("user-handle").textContent = "ID: " + user.uid.slice(0, 6);
-      document.getElementById("user-avatar").textContent = nameToUse.charAt(0).toUpperCase();
+      document.getElementById("user-name").textContent = permanentName;
+      document.getElementById("user-handle").textContent = "Permanent Name";
+      document.getElementById("user-avatar").textContent = permanentName.charAt(0).toUpperCase();
 
       requestDesktopNotificationPermission();
 
       try {
         await set(ref(db, "users/" + user.uid), {
           uid: user.uid,
-          name: nameToUse,
+          name: permanentName,
+          savedForever: true,
           updatedAt: Date.now()
         });
       } catch (e) {
@@ -651,14 +603,21 @@
       }
 
       listenToFavorites(user.uid);
-      listenToUserChats();
-      await joinChatByIdIfInvited(user.uid, nameToUse);
+      listenToAllChats();
     }
 
     onAuthStateChanged(auth, async (user) => {
       if (user) {
-        const savedName = currentDisplayName || user.displayName || localStorage.getItem("valadchat_guest_name");
+        const savedName = localStorage.getItem("valadchat_permanent_name") || user.displayName;
         if (!savedName) {
+          try {
+            const userSnap = await get(ref(db, "users/" + user.uid));
+            if (userSnap.exists() && userSnap.val().name) {
+              localStorage.setItem("valadchat_permanent_name", userSnap.val().name);
+              await enterAppWithUser(user, userSnap.val().name);
+              return;
+            }
+          } catch (e) {}
           return;
         }
         await enterAppWithUser(user, savedName);
@@ -735,6 +694,7 @@
 
     document.getElementById("btn-fav-chat").onclick = () => toggleFavoriteChat(activeChatId);
 
+    // Leave Group Action
     document.getElementById("btn-leave-group").onclick = async () => {
       if (!currentUser || !activeChatId) return;
       const meta = chatMetaById.get(activeChatId);
@@ -906,8 +866,7 @@
       document.getElementById("dm-name-input").value = "";
       closeModals();
       setActiveTab("dm");
-      openChat(newDmRef.key, label, "Share link to invite");
-      copyToClipboard(buildShareUrl(newDmRef.key), "Direct chat invite link");
+      openChat(newDmRef.key, label, currentDisplayName);
     };
 
     document.getElementById("btn-create-group").onclick = async () => {
@@ -928,7 +887,6 @@
       closeModals();
       setActiveTab("group");
       openChat(newGroupRef.key, name, currentDisplayName);
-      copyToClipboard(buildShareUrl(newGroupRef.key), "Group invite link");
     };
 
     function getChatTitle(chat, myUid) {
@@ -941,7 +899,7 @@
     function getChatSubtitle(chat) {
       const memberNames = Object.values(chat.members || {});
       if (chat.type === "group") return memberNames.join(", ");
-      return memberNames.length > 1 ? memberNames.join(" & ") : "Waiting for invitee (tap Share Link)";
+      return memberNames.length > 1 ? memberNames.join(" & ") : "Share " + MAIN_APP_LINK + " to chat";
     }
 
     function watchChatForNotifications(chatId, chatTitle) {
@@ -984,11 +942,17 @@
       const listEl = document.getElementById("chat-list");
       listEl.innerHTML = "";
 
-      const allMyChats = Object.entries(latestChatsSnapshotData || {}).filter(
-        (entry) => entry[1] && entry[1].members && entry[1].members[myUid]
+      const allChats = Object.entries(latestChatsSnapshotData || {}).filter(
+        (entry) => entry[1] && (!entry[1].members || entry[1].members[myUid] || entry[1].type === "group" || entry[1].type === "dm")
       );
 
-      allMyChats.forEach(([id, chat]) => {
+      // For groups, only list if user is currently a member (so leaving removes it); for DMs, show user's DMs
+      const visibleChats = allChats.filter(([_, chat]) => {
+        if (chat.type === "group") return Boolean(chat.members && chat.members[myUid]);
+        return Boolean(chat.members && chat.members[myUid]);
+      });
+
+      visibleChats.forEach(([id, chat]) => {
         const chatKey = String(id);
         const title = getChatTitle(chat, myUid);
         const fullSubtitle = getChatSubtitle(chat);
@@ -996,7 +960,7 @@
         watchChatForNotifications(chatKey, title);
       });
 
-      const filteredChats = allMyChats.filter(([id, chat]) => {
+      const filteredChats = visibleChats.filter(([id, chat]) => {
         if (activeTab === "dm") return chat.type !== "group";
         if (activeTab === "group") return chat.type === "group";
         if (activeTab === "fav") return Boolean(userFavorites.chats && userFavorites.chats[id]);
@@ -1018,7 +982,7 @@
         const isSelected = activeChatId !== null && String(activeChatId) === chatKey;
         const memberNames = Object.values(chat.members || {});
         const title = getChatTitle(chat, myUid);
-        const subtitle = chat.type === "group" ? (memberNames.length + " members") : (memberNames.length > 1 ? "Connected" : "Share Link to Invite");
+        const subtitle = chat.type === "group" ? (memberNames.length + " members") : (memberNames.length > 1 ? "Connected" : "Direct Chat");
         const fullSubtitle = getChatSubtitle(chat);
         const isFavChat = Boolean(userFavorites.chats && userFavorites.chats[chatKey]);
 
@@ -1057,7 +1021,7 @@
       });
     }
 
-    function listenToUserChats() {
+    function listenToAllChats() {
       onValue(ref(db, "chats"), (snapshot) => {
         latestChatsSnapshotData = snapshot.val() || {};
         renderChatList();
