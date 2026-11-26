@@ -14,15 +14,32 @@
       --glass-elevated: rgba(28, 34, 46, 0.08);
       --glass-border: rgba(255, 255, 255, 0.14);
       --glass-blur: blur(5%);
+      --text-primary: #f5f7fa;
+      --text-secondary: #9ca3af;
+      --bg-gradient:
+        radial-gradient(circle at 15% 15%, rgba(0, 122, 255, 0.24), transparent 45%),
+        radial-gradient(circle at 85% 80%, rgba(52, 199, 89, 0.14), transparent 45%),
+        linear-gradient(160deg, #07090e 0%, #0d111a 55%, #080b12 100%);
+    }
+
+    html.light {
+      --imessage-incoming: rgba(0, 0, 0, 0.08);
+      --glass-surface: rgba(255, 255, 255, 0.08);
+      --glass-elevated: rgba(255, 255, 255, 0.08);
+      --glass-border: rgba(15, 23, 42, 0.14);
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --bg-gradient:
+        radial-gradient(circle at 15% 15%, rgba(0, 122, 255, 0.22), transparent 48%),
+        radial-gradient(circle at 85% 80%, rgba(52, 199, 89, 0.16), transparent 48%),
+        linear-gradient(160deg, #e8eef7 0%, #f4f7fc 55%, #e3ebf6 100%);
     }
 
     body {
-      background:
-        radial-gradient(circle at 15% 15%, rgba(0, 122, 255, 0.22), transparent 45%),
-        radial-gradient(circle at 85% 80%, rgba(52, 199, 89, 0.12), transparent 45%),
-        linear-gradient(160deg, #07090e 0%, #0d111a 55%, #080b12 100%);
-      color: #f5f7fa;
+      background: var(--bg-gradient);
+      color: var(--text-primary);
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+      transition: background 0.25s ease, color 0.2s ease;
     }
 
     .imessage-glass {
@@ -30,7 +47,7 @@
       backdrop-filter: var(--glass-blur);
       -webkit-backdrop-filter: var(--glass-blur);
       border: 1px solid var(--glass-border);
-      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.16);
     }
 
     .imessage-panel {
@@ -38,7 +55,7 @@
       backdrop-filter: var(--glass-blur);
       -webkit-backdrop-filter: var(--glass-blur);
       border: 1px solid var(--glass-border);
-      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.14);
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.18);
     }
 
     .imessage-bubble-sent {
@@ -51,8 +68,8 @@
       background: var(--imessage-incoming);
       backdrop-filter: var(--glass-blur);
       -webkit-backdrop-filter: var(--glass-blur);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      color: #f2f4f8;
+      border: 1px solid var(--glass-border);
+      color: var(--text-primary);
     }
 
     .imessage-send-btn {
@@ -62,9 +79,13 @@
       background: var(--imessage-blue-hover);
     }
 
+    .text-theme-primary { color: var(--text-primary); }
+    .text-theme-secondary { color: var(--text-secondary); }
+    .border-theme { border-color: var(--glass-border); }
+
     ::-webkit-scrollbar { width: 5px; height: 5px; }
     ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.16); border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb { background: rgba(128, 128, 128, 0.28); border-radius: 9999px; }
   </style>
 </head>
 <body class="h-screen w-screen overflow-hidden flex items-center justify-center relative">
@@ -77,13 +98,13 @@
       </div>
       <div class="min-w-0 flex-1">
         <div class="flex items-center justify-between gap-2">
-          <span id="bubble-sender" class="text-xs font-semibold text-white truncate">New Message</span>
-          <span class="text-[10px] text-sky-300 font-medium">now</span>
+          <span id="bubble-sender" class="text-xs font-semibold text-theme-primary truncate">New Message</span>
+          <span class="text-[10px] text-sky-400 font-medium">now</span>
         </div>
-        <p id="bubble-chat" class="text-[11px] text-gray-400 truncate"></p>
-        <p id="bubble-preview" class="text-xs text-gray-100 mt-1 line-clamp-2"></p>
+        <p id="bubble-chat" class="text-[11px] text-theme-secondary truncate"></p>
+        <p id="bubble-preview" class="text-xs text-theme-primary mt-1 line-clamp-2"></p>
       </div>
-      <button id="btn-close-bubble" type="button" class="text-gray-400 hover:text-white text-xs px-1">×</button>
+      <button id="btn-close-bubble" type="button" class="text-theme-secondary hover:text-theme-primary text-xs px-1">×</button>
     </div>
   </div>
 
@@ -94,9 +115,9 @@
         <path d="M12 3C6.48 3 2 6.58 2 11c0 2.03.87 3.87 2.3 5.27-.16 1.54-.84 2.94-1.88 3.94a.5.5 0 0 0 .35.86c2.18-.04 4.17-.77 5.66-1.82.82.24 1.68.37 2.57.37 5.52 0 10-3.58 10-8s-4.48-8-10-8Z"/>
       </svg>
     </div>
-    <h1 class="text-2xl font-semibold tracking-tight text-white mb-1.5">VALADCHAT</h1>
-    <p class="text-xs text-gray-400 mb-7">iMessage • Liquid Glass • Gmail Sign-In</p>
-    <button id="btn-login" type="button" class="w-full py-3.5 px-5 rounded-2xl imessage-glass hover:bg-white/10 text-white font-semibold text-sm flex items-center justify-center gap-3 transition cursor-pointer">
+    <h1 class="text-2xl font-semibold tracking-tight text-theme-primary mb-1.5">VALADCHAT</h1>
+    <p class="text-xs text-theme-secondary mb-7">iMessage • Liquid Glass • Gmail Sign-In</p>
+    <button id="btn-login" type="button" class="w-full py-3.5 px-5 rounded-2xl imessage-glass hover:bg-white/10 text-theme-primary font-semibold text-sm flex items-center justify-center gap-3 transition cursor-pointer">
       <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5 bg-white rounded-full p-0.5" alt="Google" />
       <span>Choose Gmail Account</span>
     </button>
@@ -107,21 +128,25 @@
   <!-- MAIN APP -->
   <div id="app-screen" class="hidden w-full h-full max-w-7xl mx-auto p-2 sm:p-4 flex gap-3">
 
-    <!-- SIDEBAR (MESSAGES LIST) -->
+    <!-- SIDEBAR -->
     <aside id="sidebar" class="imessage-panel rounded-[26px] w-full md:w-80 flex-shrink-0 flex flex-col overflow-hidden">
-      <div class="px-4 py-3.5 border-b border-white/10 flex items-center justify-between gap-2">
+      <!-- User Header + Controls -->
+      <div class="px-4 py-3.5 border-b border-theme flex items-center justify-between gap-2">
         <div class="flex items-center gap-2.5 min-w-0">
-          <img id="user-avatar" src="" class="w-9 h-9 rounded-full border border-white/20 object-cover flex-shrink-0" alt="" />
+          <img id="user-avatar" src="" class="w-9 h-9 rounded-full border border-theme object-cover flex-shrink-0" alt="" />
           <div class="min-w-0">
-            <p id="user-name" class="text-sm font-semibold text-white truncate"></p>
-            <p id="user-email" class="text-[11px] text-gray-400 truncate"></p>
+            <p id="user-name" class="text-sm font-semibold text-theme-primary truncate"></p>
+            <p id="user-email" class="text-[11px] text-theme-secondary truncate"></p>
           </div>
         </div>
         <div class="flex items-center gap-1">
-          <button id="btn-sound-toggle" type="button" title="Toggle Notification Sound" class="p-2 rounded-xl imessage-glass hover:bg-white/10 text-sky-300 transition text-xs">
+          <button id="btn-theme-toggle" type="button" title="Toggle Dark / Light Mode" class="p-2 rounded-xl imessage-glass hover:bg-white/10 text-theme-primary transition text-xs">
+            <span id="theme-icon">☀️</span>
+          </button>
+          <button id="btn-sound-toggle" type="button" title="Toggle Notification Sound" class="p-2 rounded-xl imessage-glass hover:bg-white/10 text-sky-400 transition text-xs">
             <span id="sound-icon">🔔</span>
           </button>
-          <button id="btn-logout" type="button" title="Switch Account / Logout" class="p-2 rounded-xl imessage-glass hover:bg-white/10 text-gray-300 hover:text-white transition">
+          <button id="btn-logout" type="button" title="Switch Account / Logout" class="p-2 rounded-xl imessage-glass hover:bg-white/10 text-theme-secondary hover:text-theme-primary transition">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
             </svg>
@@ -129,51 +154,92 @@
         </div>
       </div>
 
-      <div class="p-2.5 grid grid-cols-2 gap-2 border-b border-white/10">
-        <button id="btn-new-dm" type="button" class="imessage-glass hover:bg-white/10 text-xs font-medium py-2 px-3 rounded-xl text-sky-300 transition">+ Direct Chat</button>
-        <button id="btn-new-group" type="button" class="imessage-glass hover:bg-white/10 text-xs font-medium py-2 px-3 rounded-xl text-gray-200 transition">+ New Group</button>
+      <!-- New Chat Actions -->
+      <div class="p-2.5 grid grid-cols-2 gap-2 border-b border-theme">
+        <button id="btn-new-dm" type="button" class="imessage-glass hover:bg-white/10 text-xs font-medium py-2 px-3 rounded-xl text-sky-400 transition">+ Direct Chat</button>
+        <button id="btn-new-group" type="button" class="imessage-glass hover:bg-white/10 text-xs font-medium py-2 px-3 rounded-xl text-theme-primary transition">+ New Group</button>
       </div>
 
+      <!-- Category Tabs: Individual | Groups | Favorites -->
+      <div class="px-2.5 pt-2.5 pb-1.5 border-b border-theme">
+        <div class="grid grid-cols-3 gap-1 p-1 rounded-2xl imessage-glass">
+          <button id="tab-dm" type="button" class="py-1.5 px-2 rounded-xl text-xs font-semibold transition imessage-bubble-sent text-white">
+            Individual
+          </button>
+          <button id="tab-group" type="button" class="py-1.5 px-2 rounded-xl text-xs font-semibold transition text-theme-secondary hover:text-theme-primary">
+            Groups
+          </button>
+          <button id="tab-fav" type="button" class="py-1.5 px-2 rounded-xl text-xs font-semibold transition text-theme-secondary hover:text-theme-primary">
+            Favorites
+          </button>
+        </div>
+      </div>
+
+      <!-- Sidebar List -->
       <div id="chat-list" class="flex-1 overflow-y-auto p-2 space-y-1">
-        <p class="text-xs text-gray-400 text-center mt-10">No conversations yet.</p>
+        <p class="text-xs text-theme-secondary text-center mt-10">No conversations yet.</p>
       </div>
     </aside>
 
-    <!-- CHAT PANE -->
+    <!-- CHAT / FAVORITES PANE -->
     <main id="chat-pane" class="imessage-panel rounded-[26px] flex-1 hidden md:flex flex-col overflow-hidden relative">
+      <!-- Empty State -->
       <div id="empty-chat" class="flex-1 flex flex-col items-center justify-center text-center p-6">
         <div class="w-12 h-12 rounded-2xl imessage-glass flex items-center justify-center mb-3 text-sky-400 text-lg font-semibold">iM</div>
-        <h2 class="text-base font-semibold text-white">Messages</h2>
-        <p class="text-xs text-gray-400 mt-1 max-w-xs">Select a thread or start a chat. Paste screenshots with Ctrl+V or attach images.</p>
+        <h2 class="text-base font-semibold text-theme-primary">Messages</h2>
+        <p class="text-xs text-theme-secondary mt-1 max-w-xs">Select a thread, group, or saved favorite. Paste screenshots with Ctrl+V or attach images.</p>
       </div>
 
+      <!-- Saved Favorites Vault View -->
+      <div id="favorites-vault" class="hidden flex-1 flex flex-col h-full">
+        <div class="px-4 py-3 border-b border-theme flex items-center justify-between gap-3 imessage-glass">
+          <div class="flex items-center gap-2.5">
+            <button id="btn-back-fav" type="button" class="md:hidden px-2.5 py-1.5 rounded-xl imessage-glass text-sky-400 text-xs font-medium">‹ Back</button>
+            <div>
+              <h3 class="text-sm font-semibold text-theme-primary">Saved Favorites</h3>
+              <p class="text-[11px] text-theme-secondary">Bookmarked messages, screenshots & threads</p>
+            </div>
+          </div>
+          <span class="text-xs text-amber-400 font-medium">★ Vault</span>
+        </div>
+        <div id="favorites-items-box" class="flex-1 overflow-y-auto p-4 space-y-3"></div>
+      </div>
+
+      <!-- Active Chat Container -->
       <div id="active-chat" class="hidden flex-1 flex flex-col h-full">
-        <div class="px-4 py-3 border-b border-white/10 flex items-center justify-between gap-3 imessage-glass">
+        <div class="px-4 py-3 border-b border-theme flex items-center justify-between gap-2 imessage-glass">
           <div class="flex items-center gap-2.5 min-w-0">
             <button id="btn-back" type="button" class="md:hidden px-2.5 py-1.5 rounded-xl imessage-glass text-sky-400 text-xs font-medium">‹ Back</button>
             <div class="min-w-0">
-              <h3 id="chat-title" class="text-sm font-semibold text-white truncate"></h3>
-              <p id="chat-subtitle" class="text-[11px] text-gray-400 truncate"></p>
+              <h3 id="chat-title" class="text-sm font-semibold text-theme-primary truncate"></h3>
+              <p id="chat-subtitle" class="text-[11px] text-theme-secondary truncate"></p>
             </div>
           </div>
-          <span class="text-[11px] text-gray-400 hidden sm:inline">iMessage</span>
+          <div class="flex items-center gap-1.5 flex-shrink-0">
+            <button id="btn-fav-chat" type="button" title="Save / Unsave Chat to Favorites" class="px-2.5 py-1.5 rounded-xl imessage-glass hover:bg-white/10 text-xs font-medium text-amber-400 transition">
+              ☆ Fav
+            </button>
+            <button id="btn-leave-group" type="button" title="Leave this group" class="hidden px-2.5 py-1.5 rounded-xl imessage-glass hover:bg-rose-500/20 text-xs font-medium text-rose-400 transition">
+              Leave Group
+            </button>
+          </div>
         </div>
 
         <div id="messages-box" class="flex-1 overflow-y-auto px-4 py-3 space-y-2.5"></div>
 
         <!-- SCREENSHOT PREVIEW -->
-        <div id="image-preview-bar" class="hidden px-4 py-2 imessage-glass border-t border-white/10 flex items-center justify-between">
+        <div id="image-preview-bar" class="hidden px-4 py-2 imessage-glass border-t border-theme flex items-center justify-between">
           <div class="flex items-center gap-3">
-            <img id="preview-thumb" src="" class="h-12 w-auto rounded-xl border border-white/20 object-cover" />
-            <span class="text-xs text-sky-300 font-medium">Screenshot attached</span>
+            <img id="preview-thumb" src="" class="h-12 w-auto rounded-xl border border-theme object-cover" />
+            <span class="text-xs text-sky-400 font-medium">Screenshot attached</span>
           </div>
           <button id="btn-clear-image" type="button" class="text-xs text-rose-400 hover:text-rose-300 px-2.5 py-1 rounded-lg imessage-glass">Remove</button>
         </div>
 
         <!-- IMESSAGE COMPOSER BAR -->
-        <form id="message-form" class="p-3 border-t border-white/10 flex items-center gap-2">
+        <form id="message-form" class="p-3 border-t border-theme flex items-center gap-2">
           <input type="file" id="image-input" accept="image/png,image/jpeg,image/webp" class="hidden" />
-          <button id="btn-attach" type="button" title="Attach Screenshot / Image Only" class="w-9 h-9 rounded-full imessage-glass hover:bg-white/10 text-gray-300 hover:text-white flex items-center justify-center flex-shrink-0 transition">
+          <button id="btn-attach" type="button" title="Attach Screenshot / Image Only" class="w-9 h-9 rounded-full imessage-glass hover:bg-white/10 text-theme-secondary hover:text-theme-primary flex items-center justify-center flex-shrink-0 transition">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
             </svg>
@@ -183,7 +249,7 @@
             type="text"
             autocomplete="off"
             placeholder="iMessage or paste screenshot (Ctrl+V)..."
-            class="flex-1 imessage-glass rounded-full px-4 py-2 text-sm text-white placeholder-gray-400 focus:outline-none focus:border-sky-400/60"
+            class="flex-1 imessage-glass rounded-full px-4 py-2 text-sm text-theme-primary placeholder-gray-400 focus:outline-none focus:border-sky-400/60"
           />
           <button type="submit" aria-label="Send" class="w-9 h-9 rounded-full imessage-send-btn text-white font-bold text-sm flex items-center justify-center flex-shrink-0 transition shadow-md">
             ↑
@@ -196,10 +262,10 @@
   <!-- MODAL: NEW DM -->
   <div id="modal-dm" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" style="backdrop-filter: blur(5%);">
     <div class="imessage-panel rounded-[24px] p-6 max-w-sm w-full space-y-4">
-      <h3 class="text-base font-semibold text-white">New iMessage</h3>
-      <input id="dm-email-input" type="email" placeholder="recipient@gmail.com" class="w-full imessage-glass rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-gray-400 focus:outline-none" />
+      <h3 class="text-base font-semibold text-theme-primary">New iMessage</h3>
+      <input id="dm-email-input" type="email" placeholder="recipient@gmail.com" class="w-full imessage-glass rounded-xl px-3.5 py-2.5 text-sm text-theme-primary placeholder-gray-400 focus:outline-none" />
       <div class="flex justify-end gap-2 pt-1">
-        <button type="button" id="btn-cancel-dm" class="px-4 py-2 rounded-xl text-xs text-gray-300 imessage-glass">Cancel</button>
+        <button type="button" id="btn-cancel-dm" class="px-4 py-2 rounded-xl text-xs text-theme-secondary imessage-glass">Cancel</button>
         <button type="button" id="btn-create-dm" class="px-4 py-2 rounded-xl text-xs font-semibold imessage-send-btn text-white">Start Chat</button>
       </div>
     </div>
@@ -208,11 +274,11 @@
   <!-- MODAL: NEW GROUP -->
   <div id="modal-group" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" style="backdrop-filter: blur(5%);">
     <div class="imessage-panel rounded-[24px] p-6 max-w-md w-full space-y-4">
-      <h3 class="text-base font-semibold text-white">New Group</h3>
-      <input id="group-name-input" type="text" placeholder="Group Name" class="w-full imessage-glass rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-gray-400 focus:outline-none" />
-      <textarea id="group-members-input" rows="3" placeholder="user1@gmail.com, user2@gmail.com" class="w-full imessage-glass rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-gray-400 focus:outline-none"></textarea>
+      <h3 class="text-base font-semibold text-theme-primary">New Group</h3>
+      <input id="group-name-input" type="text" placeholder="Group Name" class="w-full imessage-glass rounded-xl px-3.5 py-2.5 text-sm text-theme-primary placeholder-gray-400 focus:outline-none" />
+      <textarea id="group-members-input" rows="3" placeholder="user1@gmail.com, user2@gmail.com" class="w-full imessage-glass rounded-xl px-3.5 py-2.5 text-sm text-theme-primary placeholder-gray-400 focus:outline-none"></textarea>
       <div class="flex justify-end gap-2 pt-1">
-        <button type="button" id="btn-cancel-group" class="px-4 py-2 rounded-xl text-xs text-gray-300 imessage-glass">Cancel</button>
+        <button type="button" id="btn-cancel-group" class="px-4 py-2 rounded-xl text-xs text-theme-secondary imessage-glass">Cancel</button>
         <button type="button" id="btn-create-group" class="px-4 py-2 rounded-xl text-xs font-semibold imessage-send-btn text-white">Create Group</button>
       </div>
     </div>
@@ -226,7 +292,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
     import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
-    import { getDatabase, ref, set, push, onValue, off, get } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+    import { getDatabase, ref, set, push, remove, onValue, off, get } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
 
     const errEl = document.getElementById("login-error");
     const statusEl = document.getElementById("login-status");
@@ -256,17 +322,41 @@
 
     let currentUser = null;
     let activeChatId = null;
+    let activeTab = "dm"; // "dm" | "group" | "fav"
     let activeMessagesRef = null;
     let pendingImageBase64 = null;
     let soundEnabled = true;
     let bubbleTimer = null;
     let latestChatsSnapshotData = {};
+    let userFavorites = { chats: {}, messages: {} };
     const chatMetaById = new Map();
     const watchedChatListeners = new Set();
 
     const sanitizeEmail = (email) => email.trim().toLowerCase().replace(/\./g, ",");
 
-    // Notification Sound (Web Audio API chime)
+    // Dark / Light Theme Toggle
+    function applyTheme(mode) {
+      const html = document.documentElement;
+      if (mode === "light") {
+        html.classList.remove("dark");
+        html.classList.add("light");
+        document.getElementById("theme-icon").innerHTML = "🌙";
+      } else {
+        html.classList.remove("light");
+        html.classList.add("dark");
+        document.getElementById("theme-icon").innerHTML = "☀️";
+      }
+      localStorage.setItem("valadchat_theme", mode);
+    }
+
+    applyTheme(localStorage.getItem("valadchat_theme") || "dark");
+
+    document.getElementById("btn-theme-toggle").onclick = () => {
+      const next = document.documentElement.classList.contains("light") ? "dark" : "light";
+      applyTheme(next);
+    };
+
+    // Notification Sound
     function playNotificationSound() {
       if (!soundEnabled) return;
       try {
@@ -338,7 +428,10 @@
           popup.onclick = () => {
             window.focus();
             const meta = chatMetaById.get(chatId);
-            if (meta) openChat(chatId, meta.title, meta.subtitle);
+            if (meta) {
+              setActiveTab(meta.type === "group" ? "group" : "dm");
+              openChat(chatId, meta.title, meta.subtitle);
+            }
             popup.close();
           };
         } catch (e) {}
@@ -353,7 +446,10 @@
       const chatId = document.getElementById("in-app-bubble").dataset.chatId;
       document.getElementById("in-app-bubble").classList.add("hidden");
       const meta = chatMetaById.get(chatId);
-      if (chatId && meta) openChat(chatId, meta.title, meta.subtitle);
+      if (chatId && meta) {
+        setActiveTab(meta.type === "group" ? "group" : "dm");
+        openChat(chatId, meta.title, meta.subtitle);
+      }
     };
 
     document.getElementById("btn-sound-toggle").onclick = () => {
@@ -395,8 +491,9 @@
 
         requestDesktopNotificationPermission();
 
+        const myKey = sanitizeEmail(user.email);
         try {
-          await set(ref(db, "users/" + sanitizeEmail(user.email)), {
+          await set(ref(db, "users/" + myKey), {
             email: user.email.toLowerCase(),
             name: user.displayName || user.email.split("@")[0],
             photo: user.photoURL || ""
@@ -405,16 +502,231 @@
           console.error(e);
         }
 
+        listenToFavorites(myKey);
         listenToUserChats();
       } else {
         currentUser = null;
         activeChatId = null;
         latestChatsSnapshotData = {};
+        userFavorites = { chats: {}, messages: {} };
         document.getElementById("app-screen").classList.add("hidden");
         document.getElementById("login-screen").classList.remove("hidden");
       }
     });
 
+    // Favorites Sync & Actions
+    function listenToFavorites(myKey) {
+      onValue(ref(db, "favorites/" + myKey), (snap) => {
+        const val = snap.val() || {};
+        userFavorites = {
+          chats: val.chats || {},
+          messages: val.messages || {}
+        };
+        updateActiveChatHeaderButtons();
+        renderChatList();
+        if (activeTab === "fav") renderFavoritesVault();
+      });
+    }
+
+    async function toggleFavoriteChat(chatId) {
+      if (!currentUser || !chatId) return;
+      const myKey = sanitizeEmail(currentUser.email);
+      const favChatRef = ref(db, `favorites/${myKey}/chats/${chatId}`);
+      if (userFavorites.chats && userFavorites.chats[chatId]) {
+        await remove(favChatRef);
+      } else {
+        await set(favChatRef, { savedAt: Date.now() });
+      }
+    }
+
+    async function toggleFavoriteMessage(chatId, msgId, msgObj) {
+      if (!currentUser || !chatId || !msgId) return;
+      const myKey = sanitizeEmail(currentUser.email);
+      const favKey = `${chatId}__${msgId}`;
+      const favMsgRef = ref(db, `favorites/${myKey}/messages/${favKey}`);
+      if (userFavorites.messages && userFavorites.messages[favKey]) {
+        await remove(favMsgRef);
+      } else {
+        const meta = chatMetaById.get(chatId);
+        await set(favMsgRef, {
+          chatId,
+          chatTitle: (meta && meta.title) || "Chat",
+          msgId,
+          senderName: msgObj.senderName || msgObj.senderEmail,
+          senderEmail: msgObj.senderEmail,
+          text: msgObj.text || "",
+          image: msgObj.image || null,
+          timestamp: msgObj.timestamp || Date.now(),
+          savedAt: Date.now()
+        });
+      }
+    }
+
+    function updateActiveChatHeaderButtons() {
+      if (!activeChatId) return;
+      const isFav = Boolean(userFavorites.chats && userFavorites.chats[activeChatId]);
+      const favBtn = document.getElementById("btn-fav-chat");
+      favBtn.innerHTML = isFav ? "★ Saved" : "☆ Fav";
+
+      const meta = chatMetaById.get(activeChatId);
+      const leaveBtn = document.getElementById("btn-leave-group");
+      if (meta && meta.type === "group") {
+        leaveBtn.classList.remove("hidden");
+      } else {
+        leaveBtn.classList.add("hidden");
+      }
+    }
+
+    document.getElementById("btn-fav-chat").onclick = () => toggleFavoriteChat(activeChatId);
+
+    // Leave Group Action
+    document.getElementById("btn-leave-group").onclick = async () => {
+      if (!currentUser || !activeChatId) return;
+      const meta = chatMetaById.get(activeChatId);
+      if (!meta || meta.type !== "group") return;
+
+      const confirmed = confirm(`Leave group "${meta.title}"? You will no longer see or receive messages from this group.`);
+      if (!confirmed) return;
+
+      const myKey = sanitizeEmail(currentUser.email);
+      const leavingChatId = activeChatId;
+
+      await remove(ref(db, `chats/${leavingChatId}/members/${myKey}`));
+      await remove(ref(db, `favorites/${myKey}/chats/${leavingChatId}`));
+
+      if (activeMessagesRef) off(activeMessagesRef);
+      activeChatId = null;
+      document.getElementById("active-chat").classList.add("hidden");
+      document.getElementById("empty-chat").classList.remove("hidden");
+      document.getElementById("chat-pane").classList.add("hidden");
+      document.getElementById("sidebar").classList.remove("hidden");
+      renderChatList();
+    };
+
+    // Sidebar Tabs Switching
+    function setActiveTab(tab) {
+      activeTab = tab;
+      const tabs = {
+        dm: document.getElementById("tab-dm"),
+        group: document.getElementById("tab-group"),
+        fav: document.getElementById("tab-fav")
+      };
+      Object.entries(tabs).forEach(([key, el]) => {
+        if (key === tab) {
+          el.className = "py-1.5 px-2 rounded-xl text-xs font-semibold transition imessage-bubble-sent text-white";
+        } else {
+          el.className = "py-1.5 px-2 rounded-xl text-xs font-semibold transition text-theme-secondary hover:text-theme-primary";
+        }
+      });
+
+      if (tab === "fav") {
+        activeChatId = null;
+        document.getElementById("empty-chat").classList.add("hidden");
+        document.getElementById("active-chat").classList.add("hidden");
+        document.getElementById("favorites-vault").classList.remove("hidden");
+        document.getElementById("sidebar").classList.add("hidden", "md:flex");
+        document.getElementById("chat-pane").classList.remove("hidden");
+        document.getElementById("chat-pane").classList.add("flex");
+        renderFavoritesVault();
+      } else {
+        document.getElementById("favorites-vault").classList.add("hidden");
+        if (!activeChatId) {
+          document.getElementById("active-chat").classList.add("hidden");
+          document.getElementById("empty-chat").classList.remove("hidden");
+        }
+      }
+      renderChatList();
+    }
+
+    document.getElementById("tab-dm").onclick = () => setActiveTab("dm");
+    document.getElementById("tab-group").onclick = () => setActiveTab("group");
+    document.getElementById("tab-fav").onclick = () => setActiveTab("fav");
+
+    function renderFavoritesVault() {
+      const box = document.getElementById("favorites-items-box");
+      box.innerHTML = "";
+
+      const favMsgs = Object.entries(userFavorites.messages || {}).sort(
+        (a, b) => (b[1].savedAt || 0) - (a[1].savedAt || 0)
+      );
+
+      if (favMsgs.length === 0) {
+        const empty = document.createElement("p");
+        empty.className = "text-xs text-theme-secondary text-center mt-12";
+        empty.textContent = "No saved messages yet. Click the ★ icon next to any message or screenshot to save it here.";
+        box.appendChild(empty);
+        return;
+      }
+
+      favMsgs.forEach(([favKey, item]) => {
+        const card = document.createElement("div");
+        card.className = "imessage-glass rounded-2xl p-3.5 space-y-2";
+
+        const top = document.createElement("div");
+        top.className = "flex items-center justify-between gap-2";
+
+        const info = document.createElement("div");
+        info.className = "min-w-0";
+        const title = document.createElement("p");
+        title.className = "text-xs font-semibold text-theme-primary truncate";
+        title.textContent = `${item.senderName} • ${item.chatTitle}`;
+        const date = document.createElement("p");
+        date.className = "text-[10px] text-theme-secondary";
+        date.textContent = new Date(item.timestamp).toLocaleString([], { dateStyle: "medium", timeStyle: "short" });
+        info.appendChild(title);
+        info.appendChild(date);
+
+        const actions = document.createElement("div");
+        actions.className = "flex items-center gap-1.5 flex-shrink-0";
+
+        if (chatMetaById.has(item.chatId)) {
+          const jumpBtn = document.createElement("button");
+          jumpBtn.type = "button";
+          jumpBtn.className = "px-2.5 py-1 rounded-lg imessage-glass text-[11px] text-sky-400 hover:bg-white/10";
+          jumpBtn.textContent = "Open Chat";
+          jumpBtn.onclick = () => {
+            const meta = chatMetaById.get(item.chatId);
+            setActiveTab(meta.type === "group" ? "group" : "dm");
+            openChat(item.chatId, meta.title, meta.subtitle);
+          };
+          actions.appendChild(jumpBtn);
+        }
+
+        const unfavBtn = document.createElement("button");
+        unfavBtn.type = "button";
+        unfavBtn.className = "px-2 py-1 rounded-lg imessage-glass text-[11px] text-amber-400 hover:bg-white/10";
+        unfavBtn.title = "Remove from Favorites";
+        unfavBtn.innerHTML = "★";
+        unfavBtn.onclick = () => toggleFavoriteMessage(item.chatId, item.msgId, item);
+        actions.appendChild(unfavBtn);
+
+        top.appendChild(info);
+        top.appendChild(actions);
+        card.appendChild(top);
+
+        if (item.image) {
+          const img = document.createElement("img");
+          img.src = item.image;
+          img.className = "rounded-xl max-h-64 w-auto cursor-zoom-in border border-theme";
+          img.onclick = () => {
+            document.getElementById("lightbox-img").src = item.image;
+            document.getElementById("lightbox").classList.remove("hidden");
+          };
+          card.appendChild(img);
+        }
+
+        if (item.text) {
+          const p = document.createElement("p");
+          p.className = "text-sm text-theme-primary whitespace-pre-wrap break-words";
+          p.textContent = item.text;
+          card.appendChild(p);
+        }
+
+        box.appendChild(card);
+      });
+    }
+
+    // Modals
     function closeModals() {
       document.getElementById("modal-dm").classList.add("hidden");
       document.getElementById("modal-group").classList.add("hidden");
@@ -448,6 +760,7 @@
       }
       document.getElementById("dm-email-input").value = "";
       closeModals();
+      setActiveTab("dm");
       openChat(chatId, rawEmail, "iMessage");
     };
 
@@ -471,6 +784,7 @@
       document.getElementById("group-name-input").value = "";
       document.getElementById("group-members-input").value = "";
       closeModals();
+      setActiveTab("group");
       openChat(newGroupRef.key, name, Object.values(membersObj).join(", "));
     };
 
@@ -508,26 +822,46 @@
       });
     }
 
-    // Re-renders sidebar list so active highlight always matches activeChatId
     function renderChatList() {
       if (!currentUser) return;
       const myKey = sanitizeEmail(currentUser.email);
       const listEl = document.getElementById("chat-list");
       listEl.innerHTML = "";
 
-      const myChats = Object.entries(latestChatsSnapshotData || {}).filter(
+      const allMyChats = Object.entries(latestChatsSnapshotData || {}).filter(
         (entry) => entry[1] && entry[1].members && entry[1].members[myKey]
       );
 
-      if (myChats.length === 0) {
+      // Update metadata cache for all user chats
+      allMyChats.forEach(([id, chat]) => {
+        const chatKey = String(id);
+        const memberEmails = Object.values(chat.members);
+        const title = chat.type === "group"
+          ? chat.name
+          : (memberEmails.find(e => e !== currentUser.email.toLowerCase()) || currentUser.email);
+        const fullSubtitle = chat.type === "group" ? memberEmails.join(", ") : "iMessage";
+        chatMetaById.set(chatKey, { title, subtitle: fullSubtitle, type: chat.type });
+        watchChatForNotifications(chatKey, title);
+      });
+
+      const filteredChats = allMyChats.filter(([id, chat]) => {
+        if (activeTab === "dm") return chat.type !== "group";
+        if (activeTab === "group") return chat.type === "group";
+        if (activeTab === "fav") return Boolean(userFavorites.chats && userFavorites.chats[id]);
+        return true;
+      });
+
+      if (filteredChats.length === 0) {
         const empty = document.createElement("p");
-        empty.className = "text-xs text-gray-400 text-center mt-10";
-        empty.textContent = "No conversations yet.";
+        empty.className = "text-xs text-theme-secondary text-center mt-10 px-4";
+        if (activeTab === "dm") empty.textContent = "No individual chats yet. Tap + Direct Chat.";
+        else if (activeTab === "group") empty.textContent = "No groups yet. Tap + New Group.";
+        else empty.textContent = "No favorite chats yet. Star any chat using ☆ Fav in the header.";
         listEl.appendChild(empty);
         return;
       }
 
-      myChats.forEach(([id, chat]) => {
+      filteredChats.forEach(([id, chat]) => {
         const chatKey = String(id);
         const isSelected = activeChatId !== null && String(activeChatId) === chatKey;
         const memberEmails = Object.values(chat.members);
@@ -536,9 +870,7 @@
           : (memberEmails.find(e => e !== currentUser.email.toLowerCase()) || currentUser.email);
         const subtitle = chat.type === "group" ? (memberEmails.length + " members") : "iMessage";
         const fullSubtitle = chat.type === "group" ? memberEmails.join(", ") : "iMessage";
-
-        chatMetaById.set(chatKey, { title, subtitle: fullSubtitle });
-        watchChatForNotifications(chatKey, title);
+        const isFavChat = Boolean(userFavorites.chats && userFavorites.chats[chatKey]);
 
         const btn = document.createElement("button");
         btn.type = "button";
@@ -553,17 +885,17 @@
         avatar.className = "w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm flex-shrink-0 " + (
           isSelected
             ? "bg-white/20 text-white"
-            : "imessage-glass text-sky-300"
+            : "imessage-glass text-sky-400"
         );
         avatar.textContent = title.charAt(0).toUpperCase();
 
         const info = document.createElement("div");
         info.className = "min-w-0 flex-1";
         const pTitle = document.createElement("p");
-        pTitle.className = "text-sm font-semibold truncate " + (isSelected ? "text-white" : "text-gray-100");
-        pTitle.textContent = title;
+        pTitle.className = "text-sm font-semibold truncate " + (isSelected ? "text-white" : "text-theme-primary");
+        pTitle.textContent = (isFavChat ? "★ " : "") + title;
         const pSub = document.createElement("p");
-        pSub.className = "text-xs truncate " + (isSelected ? "text-white/80" : "text-gray-400");
+        pSub.className = "text-xs truncate " + (isSelected ? "text-white/80" : "text-theme-secondary");
         pSub.textContent = subtitle;
 
         info.appendChild(pTitle);
@@ -582,11 +914,70 @@
       });
     }
 
+    function renderMessages(msgsObj) {
+      const box = document.getElementById("messages-box");
+      box.innerHTML = "";
+      Object.entries(msgsObj || {}).forEach(([msgId, m]) => {
+        const isMe = m.senderEmail === currentUser.email.toLowerCase();
+        const wrap = document.createElement("div");
+        wrap.className = "flex flex-col " + (isMe ? "items-end" : "items-start");
+
+        const metaRow = document.createElement("div");
+        metaRow.className = "flex items-center gap-1.5 mb-1 px-1.5";
+
+        const meta = document.createElement("span");
+        meta.className = "text-[10px] text-theme-secondary";
+        const timeStr = new Date(m.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+        meta.textContent = (isMe ? "You" : (m.senderName || m.senderEmail)) + " • " + timeStr;
+
+        const favKey = `${activeChatId}__${msgId}`;
+        const isMsgFav = Boolean(userFavorites.messages && userFavorites.messages[favKey]);
+        const starBtn = document.createElement("button");
+        starBtn.type = "button";
+        starBtn.title = isMsgFav ? "Remove from Favorites" : "Save to Favorites";
+        starBtn.className = "text-xs transition " + (isMsgFav ? "text-amber-400" : "text-theme-secondary hover:text-amber-400");
+        starBtn.innerHTML = isMsgFav ? "★" : "☆";
+        starBtn.onclick = () => toggleFavoriteMessage(activeChatId, msgId, m);
+
+        metaRow.appendChild(meta);
+        metaRow.appendChild(starBtn);
+
+        const bubble = document.createElement("div");
+        bubble.className = "max-w-[80%] sm:max-w-md rounded-[20px] px-3.5 py-2 text-sm " + (isMe ? "imessage-bubble-sent rounded-br-md" : "imessage-bubble-recv rounded-bl-md");
+
+        if (m.image) {
+          const imgEl = document.createElement("img");
+          imgEl.src = m.image;
+          imgEl.className = "rounded-xl max-h-72 w-auto mb-1.5 cursor-zoom-in border border-white/15";
+          imgEl.onclick = () => {
+            document.getElementById("lightbox-img").src = m.image;
+            document.getElementById("lightbox").classList.remove("hidden");
+          };
+          bubble.appendChild(imgEl);
+        }
+        if (m.text) {
+          const txtEl = document.createElement("p");
+          txtEl.className = "whitespace-pre-wrap break-words leading-snug";
+          txtEl.textContent = m.text;
+          bubble.appendChild(txtEl);
+        }
+
+        wrap.appendChild(metaRow);
+        wrap.appendChild(bubble);
+        box.appendChild(wrap);
+      });
+      box.scrollTop = box.scrollHeight;
+    }
+
+    let latestActiveMessages = {};
+
     function openChat(chatId, title, subtitle) {
       activeChatId = String(chatId);
       renderChatList();
+      updateActiveChatHeaderButtons();
 
       document.getElementById("in-app-bubble").classList.add("hidden");
+      document.getElementById("favorites-vault").classList.add("hidden");
       document.getElementById("sidebar").classList.add("hidden", "md:flex");
       document.getElementById("chat-pane").classList.remove("hidden");
       document.getElementById("chat-pane").classList.add("flex");
@@ -600,44 +991,8 @@
       activeMessagesRef = ref(db, "messages/" + activeChatId);
 
       onValue(activeMessagesRef, (snapshot) => {
-        const box = document.getElementById("messages-box");
-        box.innerHTML = "";
-        const msgs = snapshot.val() || {};
-        Object.values(msgs).forEach((m) => {
-          const isMe = m.senderEmail === currentUser.email.toLowerCase();
-          const wrap = document.createElement("div");
-          wrap.className = "flex flex-col " + (isMe ? "items-end" : "items-start");
-
-          const meta = document.createElement("span");
-          meta.className = "text-[10px] text-gray-400 mb-1 px-1.5";
-          const timeStr = new Date(m.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-          meta.textContent = (isMe ? "You" : (m.senderName || m.senderEmail)) + " • " + timeStr;
-
-          const bubble = document.createElement("div");
-          bubble.className = "max-w-[80%] sm:max-w-md rounded-[20px] px-3.5 py-2 text-sm " + (isMe ? "imessage-bubble-sent rounded-br-md" : "imessage-bubble-recv rounded-bl-md");
-
-          if (m.image) {
-            const imgEl = document.createElement("img");
-            imgEl.src = m.image;
-            imgEl.className = "rounded-xl max-h-72 w-auto mb-1.5 cursor-zoom-in border border-white/15";
-            imgEl.onclick = () => {
-              document.getElementById("lightbox-img").src = m.image;
-              document.getElementById("lightbox").classList.remove("hidden");
-            };
-            bubble.appendChild(imgEl);
-          }
-          if (m.text) {
-            const txtEl = document.createElement("p");
-            txtEl.className = "whitespace-pre-wrap break-words leading-snug";
-            txtEl.textContent = m.text;
-            bubble.appendChild(txtEl);
-          }
-
-          wrap.appendChild(meta);
-          wrap.appendChild(bubble);
-          box.appendChild(wrap);
-        });
-        box.scrollTop = box.scrollHeight;
+        latestActiveMessages = snapshot.val() || {};
+        renderMessages(latestActiveMessages);
       });
     }
 
@@ -648,6 +1003,12 @@
       document.getElementById("sidebar").classList.remove("hidden");
     };
 
+    document.getElementById("btn-back-fav").onclick = () => {
+      document.getElementById("chat-pane").classList.add("hidden");
+      document.getElementById("sidebar").classList.remove("hidden");
+    };
+
+    // Strict Screenshot / Image Handling
     const ALLOWED_TYPES = ["image/png", "image/jpeg", "image/webp"];
 
     function processImageFile(file) {
